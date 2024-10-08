@@ -28,7 +28,7 @@ export default function Home() {
             >
               <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
             </svg>
-            Finanças do Casal
+            Finanças do Casal2
           </div>
           <div className="relative z-20 mt-auto">
             <blockquote className="space-y-2">
