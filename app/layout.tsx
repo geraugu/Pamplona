@@ -1,11 +1,11 @@
 import './globals.css';
-import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider } from "@/components/auth/authContext";
 
 const inter = Inter({ subsets: ['latin'] });
 
-export const metadata: Metadata = {
+export const metadata = {
   title: 'Finanças do Casal',
   description: 'Gerenciamento financeiro para casais',
 };
@@ -18,14 +18,16 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

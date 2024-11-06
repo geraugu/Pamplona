@@ -1,9 +1,121 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+"use client"
+
+import { useEffect, useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Overview } from "@/components/overview"
-import { RecentTransactions } from "@/components/recent-transactions"
+import { useAuth } from "@/components/auth/authContext"
+import { db } from "@/services/firebase"
+import { collection, query, where, getDocs, orderBy } from "firebase/firestore"
+import { useRouter } from "next/navigation"
+import { Transaction } from "@/lib/interfaces"
+import { monthNames } from "@/lib/utils"
+import { OverviewTab } from "@/components/dashboard/overview-tab"
+import { TransactionsTab } from "@/components/dashboard/transactions-tab"
+import { InvestmentsTab } from "@/components/dashboard/investments-tab"
 
 export default function DashboardPage() {
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedYear, setSelectedYear] = useState<string>("");
+  const [selectedMonth, setSelectedMonth] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>("all");
+  const [selectedOrigin, setSelectedOrigin] = useState<string>("all");
+  const { user, accountId } = useAuth();
+  const router = useRouter();
+
+  // Get available years and months from transactions
+  const dates = transactions.map(t => {
+    return {
+      year: t.anoReferencia.toString(),
+      month: t.mesReferencia.toString(),
+    };
+  });
+  const years = Array.from(new Set(dates.map(d => d.year))).sort().reverse();
+  const months = Array.from(new Set(dates.filter(d => d.year === selectedYear).map(d => d.month.toString().padStart(2, '0')))).sort().reverse();
+
+  // Set default selections when transactions load
+  useEffect(() => {
+    if (transactions.length > 0 && !selectedYear) {
+      const latestTransaction = transactions[0];
+      setSelectedYear(latestTransaction.anoReferencia.toString());
+      setSelectedMonth(latestTransaction.mesReferencia.toString().padStart(2, '0'));
+    }
+  }, [transactions, selectedYear]);
+
+  // Filter transactions by selected year, month, category, subcategory, and origin
+  const filteredTransactions = transactions.filter(t => {
+    if (!selectedYear || !selectedMonth) return false;
+    const yearMatch = t.anoReferencia === parseInt(selectedYear);
+    const monthMatch = t.mesReferencia === parseInt(selectedMonth);
+    const categoryMatch = selectedCategory === "all" || t.categoria === selectedCategory;
+    const subcategoryMatch = selectedSubcategory === "all" || t.subcategoria === selectedSubcategory;
+    const transactionOrigin = (t as any).origem || 'conta_bancaria';
+    const originMatch = selectedOrigin === "all" || transactionOrigin === selectedOrigin;
+    return yearMatch && monthMatch && categoryMatch && subcategoryMatch && originMatch;
+  }).sort((a, b) => b.data.toDate().getTime() - a.data.toDate().getTime());
+
+  // Calculate totals for the selected month
+  const totalExpenses = filteredTransactions.reduce((acc, t) => acc + t.valor, 0);
+  const totalIncome = 0; // You might want to add an income field to transactions later
+
+  useEffect(() => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
+    if (!accountId) {
+      return;
+    }
+
+    const fetchTransactions = async () => {
+      try {
+        setLoading(true);
+        const transactionsRef = collection(db, "transactions");
+        const q = query(
+          transactionsRef,
+          where("accountId", "==", accountId),
+          orderBy("data", "desc")
+        );
+
+        const querySnapshot = await getDocs(q);
+        const fetchedTransactions = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Transaction[];
+
+        setTransactions(fetchedTransactions);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching transactions:", err);
+        setError("Erro ao carregar transações");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTransactions();
+  }, [user, accountId, router]);
+
+  const getSelectedMonthName = () => {
+    if (!selectedMonth) return "";
+    const monthIndex = parseInt(selectedMonth) - 1;
+    return monthNames[monthIndex] || "";
+  };
+
+  if (!user) {
+    return null;
+  }
+
+  if (loading) {
+    return <div className="flex items-center justify-center h-screen">Carregando...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500 text-center">{error}</div>;
+  }
+
   return (
     <div className="hidden flex-col md:flex">
       <div className="flex-1 space-y-4 p-8 pt-6">
@@ -16,97 +128,36 @@ export default function DashboardPage() {
             <TabsTrigger value="transactions">Transações</TabsTrigger>
             <TabsTrigger value="investments">Investimentos</TabsTrigger>
           </TabsList>
-          <TabsContent value="overview" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Saldo Total
-                  </CardTitle>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    className="h-4 w-4 text-muted-foreground"
-                  >
-                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                  </svg>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">R$ 5750.53</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Despesas (Mês Atual)
-                  </CardTitle>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    className="h-4 w-4 text-muted-foreground"
-                  >
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                    <circle cx="9" cy="7" r="4" />
-                    <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-                  </svg>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">R$ 3520.89</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Receitas (Mês Atual)</CardTitle>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    className="h-4 w-4 text-muted-foreground"
-                  >
-                    <rect width="20" height="14" x="2" y="5" rx="2" />
-                    <path d="M2 10h20" />
-                  </svg>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">R$ 9271.42</div>
-                </CardContent>
-              </Card>
-            </div>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-              <Card className="col-span-4">
-                <CardHeader>
-                  <CardTitle>Visão Geral</CardTitle>
-                </CardHeader>
-                <CardContent className="pl-2">
-                  <Overview />
-                </CardContent>
-              </Card>
-              <Card className="col-span-3">
-                <CardHeader>
-                  <CardTitle>Transações Recentes</CardTitle>
-                  <CardDescription>
-                    Você fez 12 transações este mês.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <RecentTransactions />
-                </CardContent>
-              </Card>
-            </div>
+          <TabsContent value="overview">
+            <OverviewTab 
+              transactions={transactions}
+              totalIncome={totalIncome}
+              totalExpenses={totalExpenses}
+              selectedMonthName={getSelectedMonthName()}
+              filteredTransactions={filteredTransactions}
+            />
+          </TabsContent>
+          <TabsContent value="transactions">
+            <TransactionsTab 
+              transactions={transactions}
+              years={years}
+              months={months}
+              selectedYear={selectedYear}
+              selectedMonth={selectedMonth}
+              selectedCategory={selectedCategory}
+              selectedSubcategory={selectedSubcategory}
+              selectedOrigin={selectedOrigin}
+              setSelectedYear={setSelectedYear}
+              setSelectedMonth={setSelectedMonth}
+              setSelectedCategory={setSelectedCategory}
+              setSelectedSubcategory={setSelectedSubcategory}
+              setSelectedOrigin={setSelectedOrigin}
+              setTransactions={setTransactions}
+              accountId={accountId || ''}
+            />
+          </TabsContent>
+          <TabsContent value="investments">
+            <InvestmentsTab />
           </TabsContent>
         </Tabs>
       </div>

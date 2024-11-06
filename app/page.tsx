@@ -1,15 +1,27 @@
+"use client";
+
 import { Metadata } from "next"
 import Link from "next/link"
-
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/components/auth/authContext"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 
-export const metadata: Metadata = {
-  title: "Finanças do Casal",
-  description: "Gerenciamento financeiro para casais",
-}
-
 export default function Home() {
+  const { user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) {
+      router.push('/login');
+    }
+  }, [user, router]);
+
+  if (!user) {
+    return null; // Return null while redirecting
+  }
+
   return (
     <>
       <div className="container relative h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">

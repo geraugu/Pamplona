@@ -1,60 +1,49 @@
 "use client"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar } from "@/components/ui/avatar"
 
-export function RecentTransactions() {
+interface Transaction {
+  data: {
+    toDate: () => Date;
+  };
+  descricao: string;
+  valor: number;
+  categoria?: string;
+}
+
+interface RecentTransactionsProps {
+  transactions: Transaction[];
+}
+
+export function RecentTransactions({ transactions }: RecentTransactionsProps) {
+  const formatDate = (date: Date) => {
+    return new Intl.DateTimeFormat('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit'
+    }).format(date);
+  };
+
   return (
     <div className="space-y-8">
-      <div className="flex items-center">
-        <Avatar className="h-9 w-9">
-          <AvatarImage src="/avatars/01.png" alt="Avatar" />
-          <AvatarFallback>SU</AvatarFallback>
-        </Avatar>
-        <div className="ml-4 space-y-1">
-          <p className="text-sm font-medium leading-none">Supermercado</p>
-          <p className="text-sm text-muted-foreground">
-            Compras da semana
-          </p>
+      {transactions.map((transaction, index) => (
+        <div key={index} className="flex items-center">
+          <Avatar className="h-9 w-9">
+            <div className="font-semibold">
+              {transaction.categoria?.[0] || transaction.descricao[0]}
+            </div>
+          </Avatar>
+          <div className="ml-4 space-y-1">
+            <p className="text-sm font-medium leading-none">{transaction.descricao}</p>
+            <p className="text-sm text-muted-foreground">
+              {formatDate(transaction.data.toDate())}
+            </p>
+          </div>
+          <div className="ml-auto font-medium">
+            R$ {transaction.valor.toFixed(2)}
+          </div>
         </div>
-        <div className="ml-auto font-medium">-R$250,00</div>
-      </div>
-      <div className="flex items-center">
-        <Avatar className="flex h-9 w-9 items-center justify-center space-y-0 border">
-          <AvatarImage src="/avatars/02.png" alt="Avatar" />
-          <AvatarFallback>SA</AvatarFallback>
-        </Avatar>
-        <div className="ml-4 space-y-1">
-          <p className="text-sm font-medium leading-none">Salário</p>
-          <p className="text-sm text-muted-foreground">Depósito mensal</p>
-        </div>
-        <div className="ml-auto font-medium">+R$5.000,00</div>
-      </div>
-      <div className="flex items-center">
-        <Avatar className="h-9 w-9">
-          <AvatarImage src="/avatars/03.png" alt="Avatar" />
-          <AvatarFallback>RE</AvatarFallback>
-        </Avatar>
-        <div className="ml-4 space-y-1">
-          <p className="text-sm font-medium leading-none">Restaurante</p>
-          <p className="text-sm text-muted-foreground">
-            Jantar de aniversário
-          </p>
-        </div>
-        <div className="ml-auto font-medium">-R$150,00</div>
-      </div>
-      <div className="flex items-center">
-        <Avatar className="h-9 w-9">
-          <AvatarImage src="/avatars/04.png" alt="Avatar" />
-          <AvatarFallback>IN</AvatarFallback>
-        </Avatar>
-        <div className="ml-4 space-y-1">
-          <p className="text-sm font-medium leading-none">Investimento</p>
-          <p className="text-sm text-muted-foreground">
-            Aplicação mensal
-          </p>
-        </div>
-        <div className="ml-auto font-medium">-R$1.000,00</div>
-      </div>
+      ))}
     </div>
   )
 }
