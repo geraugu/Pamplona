@@ -28,6 +28,7 @@ export default function UploadPage() {
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null)
   const [selectedYear] = useState<number>(new Date().getFullYear())
   const [editingTransaction, setEditingTransaction] = useState<Transacao | null>(null)
+  const [showOnlyUncategorized, setShowOnlyUncategorized] = useState<boolean>(true)
 
   // Configure PDF.js worker
   useEffect(() => {
@@ -99,6 +100,11 @@ export default function UploadPage() {
   }
 
   const handleSaveTransactions = async () => {
+    if (selectedMonth === null) {
+      toast.error('Por favor, selecione o mês de referência')
+      return
+    }
+
     const saved = await saveTransactions(selectedYear, selectedMonth)
     if (saved) {
       toast.success('Transações salvas com sucesso!')
@@ -140,6 +146,12 @@ export default function UploadPage() {
   const handleCategoryChange = (id: number, category: CategoriaKeys) => {
     changeTransactionCategory(id, category)
     toast.success('Categoria atualizada com sucesso!')
+    
+    // If showing only uncategorized, toggle the filter to refresh the view
+    if (showOnlyUncategorized) {
+      setShowOnlyUncategorized(false)
+      setShowOnlyUncategorized(true)
+    }
   }
 
   const handleSubcategoryChange = (id: number, subcategory: string) => {
@@ -149,6 +161,15 @@ export default function UploadPage() {
       toast.success('Subcategoria atualizada com sucesso!')
     }
   }
+
+  // Filter transactions to show uncategorized first or all
+  const filteredTransactions = showOnlyUncategorized 
+    ? transactions.filter(t => 
+        t.categoria === null || 
+        t.categoria === undefined || 
+        (t.categoria && (!t.subcategoria || t.subcategoria === null))
+      )
+    : transactions
 
   return (
     <>
@@ -200,10 +221,44 @@ export default function UploadPage() {
             </div>
           )}
           
+          {(transactions.length > 0 || investments.length > 0) && (
+            <div className="mb-4">
+              <Label>Mês de Referência</Label>
+              <Select 
+                value={selectedMonth ? selectedMonth.toString() : undefined} 
+                onValueChange={(value) => setSelectedMonth(parseInt(value))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o mês" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[...Array(12)].map((_, index) => (
+                    <SelectItem key={index + 1} value={(index + 1).toString()}>
+                      {new Date(0, index).toLocaleString('pt-BR', { month: 'long' })}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          
           {transactions.length > 0 && (
             <>
+              <div className="flex items-center space-x-4 mb-4">
+                <Button 
+                  variant={showOnlyUncategorized ? "default" : "outline"}
+                  onClick={() => setShowOnlyUncategorized(!showOnlyUncategorized)}
+                >
+                  {showOnlyUncategorized ? "Mostrar Todas" : "Mostrar Não Categorizadas"}
+                </Button>
+                <span className="text-sm text-gray-600">
+                  {showOnlyUncategorized 
+                    ? `Mostrando ${filteredTransactions.length} transações não categorizadas` 
+                    : `Mostrando todas as ${transactions.length} transações`}
+                </span>
+              </div>
               <TransactionTable 
-                transactions={transactions} 
+                transactions={filteredTransactions} 
                 onEdit={handleEditTransaction}
                 onDelete={handleDeleteTransaction}
                 onCategoryChange={handleCategoryChange}

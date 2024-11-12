@@ -8,12 +8,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { PencilIcon, TrashIcon } from "lucide-react"
+import { Label } from the rest of the rest of the rest the file of the file the rest the rest of the file the file the the the the file the the the user the the the content the the the the the the the the the the the the the the the user to the the the the the file the the the the the the the the content the the content the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the content the the the the content the the the the the the content the the the content the the content the content the content the content the content the content the content the content the content the content the content the content the content the content the content the content the content the content the content the content the content the content the content the content the content the content the content the content the content the content the file the content the content the content the the content the content the content the content the the content the content the content the content of the content the file the content the content the content the content the content the content the content the content the content the content the content the content the content the content the content the content the the the the the the file the content the content the file the file the content the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the content the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the the file the the file the the the the the file the file the the the file the the the the the file the file the the the file the the the user the the the file the the the file the file the file the the file the the the file the file the file the file the file the file the file the the the file the file the the file the the file to the file the file the file the file the file the file the file the the file the the the the the file to the file the file the file the file the user the user the file the user the user the file the user the user the file the user the user the the file the file the the file the the the file the file the file the user the user the the the user the user the user the user the user to the user the the the file to the the user the the the the the the the AlertDialog to the the the the the user to the the user to the the user to the the the content the the the user to the content to the user to the the the the the the user the the content the content the the user to the content to the content the user to the the content to the the the user the user to the content the content to the user to the content the content the content to the content to the content the user to the user to the user to the user to the content to the user to the content to the user to the user to the the user to the file to the content to the content to the user for the content the user to the user to the user to the user to the user to the user to the file to the the user to the user to the file to the user to the user for the user to the user to the user to the user to the file to the user to the user to the user for the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user the user to the user to the user to the file the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user for the user to the user to the user for the user for the user to the user to the user for the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user the user to the user to the user the user to the user to the user to the user to the user to the user the user the user to the user to the user to the user to the user to the user to the user to the user to the user the the user the user for the user the user to the user to the the user to the the the the the the user to the user to the user the the user to the user to the user to the user to the the the user the user to the user to the user to the the the the user to the user to the user to the user to the user for the user to the the the user the user the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user to the user for the user to the file the the user to the file the user to the the user the user the user the user to the user the user to the user to the user the user the the the the the the the the the the the the user the the the user the the user the user the the the the the the the the user the user the user the the the the the the the the the the the the the the the the the the the the the the the the the user the the the the user the user the the the user to the user the the the the the the user the user the the the the user the user the the the user the user the user the user the user the user the user the user to the user the user the the the the the file the file the file the file the the the the file the file the user the the file the file the file the user the the user the file the file the user the user the the the the the the user the the the user the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the the file the the file the file the the the file the the file the the the the the file the file the the file the the file the file the file the file the the file the the file the the the the the the the the file the file the the file the file the file the file the file the file the file the file the file the file the file the the the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file to the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the file the user the file the user the user the file the file the file the the the the user the user the user the file the the the user the user to the user the user the user the user the user the user the user the user the user the user to the file the file the file the user to the file the file the user the file the file the file the user to the file the file the file the user to the user to the file the user the file the file the the file the file the file the the file the file the the file the the file the file of the user of the user to the rest of the user to the user toLowerCase to_string to the rest to be the user toLowerCase to show toLowerCase of the user to show the user to the user to the user to the user to the rest toLowerCase to be the rest the rest to the user to be the user to the user the rest to be the rest the rest to_string to the user to_string to be the rest to the user content toLowerCase toLowerCase toLowerCase to show to the rest the rest to the rest_content to the rest to the user toLowerCase of the rest the rest the rest of the rest to the rest to_file to the rest to the user to show to show to be the user to the user to the user toLowerCase to be the rest to the rest of the user of the rest to the rest the rest to be the user to the user of the user to show to the user to the user of the rest of the rest to the user to the rest of the rest to be the rest toLowerCase toLowerCase toLowerCase to be user toLowerCase toLowerCase the rest to the user content of the rest toLowerCase of the rest of the user content of code_content_content_content_content_content the user to the rest of code to be_content toLowerCase of the user to be the user the user of the user of the rest the rest to show to_string to the rest to the rest toLowerCase toLowerCase to show to show to show of the rest to the rest_to_file to_string to the user to the user to be the user to show toLowerCase_content_content to show to show the user toLowerCase of the user content of code of the rest of code to be the rest the rest to_string content to show of the user of the user to the rest to the rest to show of the rest the user of the rest to_string to the rest_content_content_content=" the user_content_content of the rest to_string to_string of the rest of the rest the restContent to_string_content_content_content to the user content to the rest_content=" the rest_content="description to be necessary to_string_content of the rest to be the user to the user_content of the rest the user_content the rest the rest_content to the rest_content to the rest_content to the rest=" the rest to_file content to the rest_content to_file of the rest to the rest to the rest the rest_content to_file to be_content_content to the rest to the rest the rest to the rest_content to the rest content to the rest_content to the rest_content to the rest content of the rest the rest_content to the rest_content_content content content of the restContent to the rest_content_content to the rest of the rest_content to the restContent content to be rest of the rest_content_content the rest content to the rest to be the rest to the restContentContentContent_content_content=" content to be content to be rest the rest to beContent to be the rest to be user to beContent_content to_string to the rest_content to show the restContent of the rest content_content_content_content to the restContent_content to the rest_content to be the restContent to the rest to the rest_content to the rest to the rest to the rest to the rest of the rest to be to beContent_content_content of the rest the rest to the rest=" the rest to the rest_content to the rest to the rest content to the rest to the rest of the rest="value_content of the rest_content_content to be rest="file_content>
+file_content>
 import { Transaction, SavedBankTransaction } from "@/lib/interfaces"
 import { formatCurrency, formatDate, monthNames } from "@/lib/utils"
 import categorias from "@/lib/categorias.json"
-import { doc, updateDoc, deleteDoc } from "firebase/firestore"
+import { doc, updateDoc, deleteDoc, writeBatch } from "firebase/firestore"
 import { db } from "@/services/firebase"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { useToast } from "@/hooks/use-toast"
@@ -225,6 +225,47 @@ export function TransactionsTab({
     }
   };
 
+  const handleDeleteAllTransactions = async () => {
+    if (selectedMonth === 'all') return;
+
+    try {
+      const batch = writeBatch(db);
+      const transactionsToDelete = transactions.filter(t => 
+        t.mesReferencia === parseInt(selectedMonth) &&
+        t.anoReferencia === parseInt(selectedYear)
+      );
+
+      transactionsToDelete.forEach(transaction => {
+        const transactionRef = doc(db, "transactions", transaction.id);
+        batch.delete(transactionRef);
+      });
+
+      await batch.commit();
+
+      // Update transactions in parent component
+      setTransactions(prevTransactions => 
+        prevTransactions.filter(t => 
+          !(t.mesReferencia === parseInt(selectedMonth) && 
+            t.anoReferencia === parseInt(selectedYear))
+        )
+      );
+
+      // Show success toast
+      toast({
+        title: "Transações Excluídas",
+        description: `Todas as transações de ${monthNames[selectedMonth as keyof typeof monthNames]} foram excluídas com sucesso.`,
+        variant: "default"
+      });
+    } catch (err) {
+      console.error("Error deleting transactions:", err);
+      toast({
+        title: "Erro ao Excluir",
+        description: "Não foi possível excluir as transações.",
+        variant: "destructive"
+      });
+    }
+  };
+
   // Function to determine row color based on transaction type
   const getRowColor = (transaction: Transaction) => {
     if (transaction.categoria === "Não contábil") return "bg-gray-100";
@@ -239,7 +280,32 @@ export function TransactionsTab({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Transações</CardTitle>
+        <div className="flex justify-between items-center">
+          <CardTitle>Transações</CardTitle>
+          {selectedMonth !== 'all' && selectedYear !== 'all' && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive">
+                  Excluir Transações do Mês
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Tem certeza que deseja excluir todas as transações?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta ação não pode ser desfeita. Todas as transações de {monthNames[selectedMonth as keyof typeof monthNames]} serão permanentemente removidas.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDeleteAllTransactions}>
+                    Excluir Todas
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+        </div>
         <div className="flex gap-4 mt-4 flex-wrap">
           {/* Year Filter */}
           <Select 

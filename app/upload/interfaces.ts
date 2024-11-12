@@ -1,3 +1,8 @@
+import { Timestamp } from 'firebase/firestore'
+import categorias from 'lib/categorias.json'
+
+export type CategoriaKeys = keyof typeof categorias
+
 export interface Transacao {
   id: number;
   data: string;
@@ -8,12 +13,12 @@ export interface Transacao {
   valor: number;
   categoria: CategoriaKeys | null;
   subcategoria: string | null;
-  origem: 'cartao_credito' | 'conta_bancaria';
+  origem: string;
   anoReferencia?: number;
   mesReferencia?: number;
+  accountId?: string;
+  createdAt?: Timestamp;
 }
-
-export type CategoriaKeys = keyof typeof import('@/lib/categorias.json');
 
 export interface CategoryMapping {
   [key: string]: {
@@ -38,5 +43,7 @@ export interface Investimento {
   "% Carteira": number;
   "L/P": string;
   dataReferencia?: Date;
+  accountId?: string;
+  createdAt?: Timestamp;
   [key: string]: any;
 }

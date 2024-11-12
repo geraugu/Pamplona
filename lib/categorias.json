@@ -9,6 +9,7 @@
     "Consertos/manutenção",
     "Seguro residencial",
     "Diarista",
+    "Utensilios/móveis casa",
     "Outros"
   ],
   "Alimentação": [
@@ -18,15 +19,12 @@
     "iFood",
     "Restaurante",
     "Cafés",
-    "Vinhos"
+    "Vinhos/Nespresso"
   ],
   "Bem-estar": [
-    "Pilates",
-    "Natação",
-    "Personal",
-    "Velocity",
-    "Academia",
-    "Atividades crianças"
+    
+    "1-Atividades adultos",
+    "2-Atividades crianças"
   ],
   "Transporte": [
     "Seguro",
@@ -44,6 +42,7 @@
   ],
   "Educação": [
     "Mensalidade escolar",
+    "Material escolar",
     "Cursos",
     "Outros"
   ],
@@ -63,7 +62,6 @@
   "Outros gastos": [
     "Compra internet",
     "Presentes",
-    "Utensilios/móveis casa",
     "Tarifas Bancárias",
     "Anuidade cartão crédito",
     "Doações",

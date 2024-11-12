@@ -11,6 +11,7 @@ import { monthNames } from "@/lib/utils"
 import { OverviewTab } from "@/components/dashboard/overview-tab"
 import { TransactionsTab } from "@/components/dashboard/transactions-tab"
 import { InvestmentsTab } from "@/components/dashboard/investments-tab"
+import { AnalysesTab } from "@/components/dashboard/analyses-tab"
 
 export default function DashboardPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -127,6 +128,7 @@ export default function DashboardPage() {
             <TabsTrigger value="overview">Visão Geral</TabsTrigger>
             <TabsTrigger value="transactions">Transações</TabsTrigger>
             <TabsTrigger value="investments">Investimentos</TabsTrigger>
+            <TabsTrigger value="analyses">Análises</TabsTrigger>
           </TabsList>
           <TabsContent value="overview">
             <OverviewTab 
@@ -158,6 +160,9 @@ export default function DashboardPage() {
           </TabsContent>
           <TabsContent value="investments">
             <InvestmentsTab />
+          </TabsContent>
+          <TabsContent value="analyses">
+            <AnalysesTab transactions={transactions} />
           </TabsContent>
         </Tabs>
       </div>
