@@ -12,11 +12,11 @@ import { Label } from "@/components/ui/Label"
 import { Transaction, SavedBankTransaction } from "@/lib/interfaces"
 import { formatCurrency, formatDate, monthNames } from "@/lib/utils"
 import categorias from "@/lib/categorias.json"
-import { doc, updateDoc, deleteDoc, writeBatch } from "firebase/firestore"
+import { doc, updateDoc, deleteDoc, writeBatch, collection, addDoc, Timestamp } from "firebase/firestore"
 import { db } from "@/services/firebase"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { useToast } from "@/hooks/use-toast"
-import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { PencilIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline'
 
 interface TransactionsTabProps {
   transactions: Transaction[];
@@ -41,6 +41,16 @@ interface CategoryTotal {
   total: number;
 }
 
+interface NewTransaction {
+  descricao: string;
+  valor: number;
+  categoria: string;
+  subcategoria: string;
+  origem: 'cartao_credito' | 'conta_bancaria';
+  data: Date;
+  parcela?: string;
+}
+
 export function TransactionsTab({
   transactions,
   years,
@@ -63,6 +73,16 @@ export function TransactionsTab({
   const [error, setError] = useState<string | null>(null);
   const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
   const dialogCloseRef = useRef<HTMLButtonElement>(null);
+  const newTransactionDialogCloseRef = useRef<HTMLButtonElement>(null);
+  const [newTransaction, setNewTransaction] = useState<NewTransaction>({
+    descricao: '',
+    valor: 0,
+    categoria: '',
+    subcategoria: '',
+    origem: 'conta_bancaria',
+    data: new Date(),
+    parcela: ''
+  });
 
   // Updated filtering logic
   const filteredTransactions = useMemo(() => {
@@ -109,6 +129,12 @@ export function TransactionsTab({
     if (!editingTransaction?.categoria) return [];
     return categorias[editingTransaction.categoria as keyof typeof categorias] || [];
   }, [editingTransaction?.categoria]);
+
+  // Derive available subcategories for new transaction
+  const newTransactionSubcategories = useMemo(() => {
+    if (!newTransaction.categoria) return [];
+    return categorias[newTransaction.categoria as keyof typeof categorias] || [];
+  }, [newTransaction.categoria]);
 
   // Category totals for bar chart
   const categoryChartData = useMemo<CategoryTotal[]>(() => {
@@ -198,6 +224,62 @@ export function TransactionsTab({
     }
   };
 
+  const handleCreateTransaction = async () => {
+    try {
+      const transactionDate = new Date(newTransaction.data);
+      const transactionData = {
+        ...newTransaction,
+        data: Timestamp.fromDate(transactionDate),
+        anoReferencia: transactionDate.getFullYear(),
+        mesReferencia: transactionDate.getMonth() + 1,
+        accountId,
+      };
+
+      const docRef = await addDoc(collection(db, "transactions"), transactionData);
+      
+      // Add the new transaction to the local state
+      const newTransactionWithId = {
+        ...transactionData,
+        id: docRef.id,
+        data: Timestamp.fromDate(transactionDate),
+      };
+      
+      setTransactions(prev => [...prev, newTransactionWithId]);
+
+      // Close dialog
+      if (newTransactionDialogCloseRef.current) {
+        newTransactionDialogCloseRef.current.click();
+      }
+
+      // Reset form
+      setNewTransaction({
+        descricao: '',
+        valor: 0,
+        categoria: '',
+        subcategoria: '',
+        origem: 'conta_bancaria',
+        data: new Date(),
+        parcela: ''
+      });
+
+      // Show success toast
+      toast({
+        title: "Transação Criada",
+        description: "A transação foi criada com sucesso.",
+        variant: "default"
+      });
+    } catch (err) {
+      console.error("Error creating transaction:", err);
+      
+      // Show error toast
+      toast({
+        title: "Erro ao Criar",
+        description: "Não foi possível criar a transação.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleDeleteTransaction = async () => {
     if (!transactionToDelete) return;
 
@@ -282,29 +364,194 @@ export function TransactionsTab({
       <CardHeader>
         <div className="flex justify-between items-center">
           <CardTitle>Transações</CardTitle>
-          {selectedMonth !== 'all' && selectedYear !== 'all' && (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive">
-                  Excluir Transações do Mês
+          <div className="flex gap-2">
+            {/* New Transaction Dialog */}
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button>
+                  <PlusIcon className="h-4 w-4 mr-2" />
+                  Nova Transação
                 </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Tem certeza que deseja excluir todas as transações?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Esta ação não pode ser desfeita. Todas as transações de {monthNames[selectedMonth as keyof typeof monthNames]} serão permanentemente removidas.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDeleteAllTransactions}>
-                    Excluir Todas
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          )}
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Nova Transação</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  {/* Data */}
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="data" className="text-right">
+                      Data
+                    </Label>
+                    <Input 
+                      id="data" 
+                      type="date"
+                      value={newTransaction.data.toISOString().split('T')[0]}
+                      onChange={(e) => setNewTransaction(prev => ({
+                        ...prev,
+                        data: new Date(e.target.value)
+                      }))}
+                      className="col-span-3" 
+                    />
+                  </div>
+
+                  {/* Descrição */}
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="descricao" className="text-right">
+                      Descrição
+                    </Label>
+                    <Input 
+                      id="descricao" 
+                      value={newTransaction.descricao} 
+                      onChange={(e) => setNewTransaction(prev => ({
+                        ...prev,
+                        descricao: e.target.value
+                      }))}
+                      className="col-span-3" 
+                    />
+                  </div>
+
+                  {/* Valor */}
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="valor" className="text-right">
+                      Valor
+                    </Label>
+                    <Input 
+                      id="valor" 
+                      type="number" 
+                      value={newTransaction.valor} 
+                      onChange={(e) => setNewTransaction(prev => ({
+                        ...prev,
+                        valor: parseFloat(e.target.value)
+                      }))}
+                      className="col-span-3" 
+                    />
+                  </div>
+
+                  {/* Categoria */}
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label className="text-right">Categoria</Label>
+                    <Select
+                      value={newTransaction.categoria}
+                      onValueChange={(value) => setNewTransaction(prev => ({
+                        ...prev,
+                        categoria: value,
+                        subcategoria: ''
+                      }))}
+                    >
+                      <SelectTrigger className="col-span-3">
+                        <SelectValue placeholder="Selecione a categoria" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableCategories.map(category => (
+                          <SelectItem key={category} value={category}>
+                            {category}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Subcategoria */}
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label className="text-right">Subcategoria</Label>
+                    <Select
+                      value={newTransaction.subcategoria}
+                      onValueChange={(value) => setNewTransaction(prev => ({
+                        ...prev,
+                        subcategoria: value
+                      }))}
+                      disabled={!newTransaction.categoria}
+                    >
+                      <SelectTrigger className="col-span-3">
+                        <SelectValue placeholder="Selecione a subcategoria" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {newTransactionSubcategories.map((subcategory: string) => (
+                          <SelectItem key={subcategory} value={subcategory}>
+                            {subcategory}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Origem */}
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label className="text-right">Origem</Label>
+                    <Select
+                      value={newTransaction.origem}
+                      onValueChange={(value: 'cartao_credito' | 'conta_bancaria') => 
+                        setNewTransaction(prev => ({
+                          ...prev,
+                          origem: value
+                        }))
+                      }
+                    >
+                      <SelectTrigger className="col-span-3">
+                        <SelectValue placeholder="Selecione a origem" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="conta_bancaria">Conta Bancária</SelectItem>
+                        <SelectItem value="cartao_credito">Cartão de Crédito</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Parcela (opcional) */}
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="parcela" className="text-right">
+                      Parcela
+                    </Label>
+                    <Input 
+                      id="parcela" 
+                      value={newTransaction.parcela} 
+                      onChange={(e) => setNewTransaction(prev => ({
+                        ...prev,
+                        parcela: e.target.value
+                      }))}
+                      placeholder="Ex: 1/12 (opcional)"
+                      className="col-span-3" 
+                    />
+                  </div>
+                </div>
+
+                <DialogFooter>
+                  <Button 
+                    type="submit"
+                    onClick={handleCreateTransaction}
+                  >
+                    Criar
+                  </Button>
+                  <DialogClose ref={newTransactionDialogCloseRef} className="hidden" />
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            {selectedMonth !== 'all' && selectedYear !== 'all' && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive">
+                    Excluir Transações do Mês
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Tem certeza que deseja excluir todas as transações?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta ação não pode ser desfeita. Todas as transações de {monthNames[selectedMonth as keyof typeof monthNames]} serão permanentemente removidas.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeleteAllTransactions}>
+                      Excluir Todas
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+          </div>
         </div>
         <div className="flex gap-4 mt-4 flex-wrap">
           {/* Year Filter */}
