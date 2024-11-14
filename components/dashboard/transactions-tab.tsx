@@ -9,7 +9,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
-import { Transaction, SavedBankTransaction } from  "lib/interfaces" 
+import { Transaction } from  "lib/interfaces" 
 import { formatCurrency, formatDate, monthNames } from "lib/utils"
 import categorias from "lib/categorias.json"
 import { doc, updateDoc, deleteDoc, writeBatch, collection, addDoc, Timestamp } from "firebase/firestore"
@@ -46,9 +46,9 @@ interface NewTransaction {
   valor: number;
   categoria: string;
   subcategoria: string;
-  origem: 'cartao_credito' | 'conta_bancaria';
+  origem: 'cartao_credito' | 'conta_bancaria' | 'bank-statement';
   data: Date;
-  parcela?: string;
+  parcela?: string | null;
 }
 
 export function TransactionsTab({
@@ -81,7 +81,7 @@ export function TransactionsTab({
     subcategoria: '',
     origem: 'conta_bancaria',
     data: new Date(),
-    parcela: ''
+    parcela: null
   });
 
   // Updated filtering logic
@@ -104,7 +104,7 @@ export function TransactionsTab({
         transaction.subcategoria === selectedSubcategory;
 
       // Updated origin filtering
-      const transactionOrigin = (transaction as SavedBankTransaction).origem || 'conta_bancaria';
+      const transactionOrigin = transaction.origem || 'conta_bancaria';
       const originMatch = selectedOrigin === 'all' || transactionOrigin === selectedOrigin;
 
       return yearMatch && monthMatch && categoryMatch && subcategoryMatch && originMatch;
@@ -227,21 +227,23 @@ export function TransactionsTab({
   const handleCreateTransaction = async () => {
     try {
       const transactionDate = new Date(newTransaction.data);
-      const transactionData = {
+      const transactionData: Omit<Transaction, 'id'> = {
         ...newTransaction,
         data: Timestamp.fromDate(transactionDate),
         anoReferencia: transactionDate.getFullYear(),
         mesReferencia: transactionDate.getMonth() + 1,
         accountId,
+        pais: 'Brasil',
+        parcela: newTransaction.parcela || null,
+        origem: newTransaction.origem === 'bank-statement' ? 'bank-statement' : newTransaction.origem
       };
 
       const docRef = await addDoc(collection(db, "transactions"), transactionData);
       
       // Add the new transaction to the local state
-      const newTransactionWithId = {
+      const newTransactionWithId: Transaction = {
         ...transactionData,
         id: docRef.id,
-        data: Timestamp.fromDate(transactionDate),
       };
       
       setTransactions(prev => [...prev, newTransactionWithId]);
@@ -259,7 +261,7 @@ export function TransactionsTab({
         subcategoria: '',
         origem: 'conta_bancaria',
         data: new Date(),
-        parcela: ''
+        parcela: null
       });
 
       // Show success toast
@@ -499,18 +501,17 @@ export function TransactionsTab({
                   </div>
 
                   {/* Parcela (opcional) */}
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="parcela" className="text-right">
-                      Parcela
-                    </Label>
-                    <Input 
-                      id="parcela" 
-                      value={newTransaction.parcela} 
-                      onChange={(e) => setNewTransaction(prev => ({
-                        ...prev,
-                        parcela: e.target.value
-                      }))}
-                      placeholder="Ex: 1/12 (opcional)"
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label htmlFor="parcela" className="text-right">
+          Parcela
+        </Label>
+        <Select
+          value={newTransaction.parcela || ''} 
+          onValueChange={(value) => setNewTransaction(prev => ({
+            ...prev,
+            parcela: value || null
+          }))}
+          placeholder="Ex: 1/12 (opcional)"
                       className="col-span-3" 
                     />
                   </div>
@@ -726,23 +727,25 @@ export function TransactionsTab({
               <TableHead className="text-center">Ações</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
-            {filteredTransactions.map((transaction) => (
-              <TableRow 
-                key={transaction.id} 
-                className={getRowColor(transaction)}
-              >
-                  <TableCell>{formatDate(transaction.data.toDate())}</TableCell>
-                  <TableCell>{transaction.descricao}</TableCell>
-                  <TableCell>{transaction.categoria}</TableCell>
-                  <TableCell>{transaction.subcategoria}</TableCell>
-                  <TableCell>{transaction.parcela}</TableCell>
-                  <TableCell>
-                    {(transaction as SavedBankTransaction).origem === 'cartao_credito' 
-                      ? 'Cartão de Crédito' 
-                      : 'Conta Bancária'}
-                  </TableCell>
-                  <TableCell className="text-right">{formatCurrency(transaction.valor)}</TableCell>
+      <TableBody>
+        {filteredTransactions.map((transaction) => (
+          <TableRow 
+            key={transaction.id} 
+            className={getRowColor(transaction)}
+          >
+            <TableCell>{formatDate(transaction.data.toDate())}</TableCell>
+            <TableCell>{transaction.descricao}</TableCell>
+            <TableCell>{transaction.categoria}</TableCell>
+            <TableCell>{transaction.subcategoria}</TableCell>
+            <TableCell>{transaction.parcela}</TableCell>
+            <TableCell>
+              {transaction.origem === 'cartao_credito' 
+                ? 'Cartão de Crédito' 
+                : transaction.origem === 'bank-statement'
+                ? 'Extrato Bancário'
+                : 'Conta Bancária'}
+            </TableCell>
+            <TableCell className="text-right">{formatCurrency(transaction.valor)}</TableCell>
                 <TableCell className="flex justify-center items-center space-x-2">
                   {/* Edit Transaction Dialog */}
                   <Dialog>
@@ -799,19 +802,21 @@ export function TransactionsTab({
                             onValueChange={(value) => setEditingTransaction(prev => 
                               prev ? {...prev, categoria: value, subcategoria: ''} : null
                             )}
-                          >
-                            <SelectTrigger className="col-span-3">
-                              <SelectValue placeholder="Selecione a categoria" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {availableCategories.map(category => (
-                                <SelectItem key={category} value={category}>
-                                  {category}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
+        >
+          <SelectTrigger className="col-span-3">
+            <SelectValue placeholder="Parcela (opcional)" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">Sem Parcela</SelectItem>
+            {/* Add common parcel options or allow free input */}
+            <SelectItem value="1/2">1/2</SelectItem>
+            <SelectItem value="1/3">1/3</SelectItem>
+            <SelectItem value="1/4">1/4</SelectItem>
+            <SelectItem value="1/6">1/6</SelectItem>
+            <SelectItem value="1/12">1/12</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
                         {/* Subcategoria */}
                         <div className="grid grid-cols-4 items-center gap-4">
@@ -876,9 +881,9 @@ export function TransactionsTab({
                     </AlertDialogContent>
                   </AlertDialog>
                 </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
+          </TableRow>
+        ))}
+      </TableBody>
         </Table>
 
         {/* Error Display */}

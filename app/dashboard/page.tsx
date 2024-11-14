@@ -101,8 +101,8 @@ export default function DashboardPage() {
 
   const getSelectedMonthName = () => {
     if (!selectedMonth) return "";
-    const monthIndex = parseInt(selectedMonth) - 1;
-    return monthNames[monthIndex] || "";
+    const monthKey = selectedMonth.toString().padStart(2, '0');
+    return monthNames[monthKey as keyof typeof monthNames] || "";
   };
 
   if (!user) {
