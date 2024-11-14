@@ -167,7 +167,7 @@ export function TransactionsTab({
 
   const totalExpenses = useMemo<number>(() => 
     filteredTransactions
-      .filter(t => t.valor < 0 && t.categoria !== "Não contábil")
+      .filter(t => t.valor < 0 && t.categoria !== "Não contábil" && t.categoria !== "Reserva")
       .reduce((sum, t) => sum + Math.abs(t.valor), 0),
     [filteredTransactions]
   );

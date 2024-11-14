@@ -10,6 +10,7 @@
     "Seguro residencial",
     "Diarista",
     "Utensilios/móveis casa",
+    "Agua",
     "Outros"
   ],
   "Alimentação": [
@@ -44,6 +45,7 @@
     "Mensalidade escolar",
     "Material escolar",
     "Cursos",
+    "Mesada",
     "Outros"
   ],
   "Lazer/informação": [
@@ -80,6 +82,7 @@
     "Outros"
   ],
   "Não contábil": [
-    "Transferência entre contas"
+    "Transferência entre contas",
+    "Outros"
   ]
 }

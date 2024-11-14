@@ -244,6 +244,15 @@ export function useUploadManager() {
     }
   }
 
+  const cleanDescription = (description: string): string => {
+    // Remove date patterns like 26/09, 26/09/2023, 15:54, etc.
+    return description
+      .replace(/\d{1,2}\/\d{1,2}(\/\d{4})?\s*\d{2}:\d{2}/g, '')  // Remove date and time
+      .replace(/\d{1,2}\/\d{1,2}(\/\d{4})?/g, '')  // Remove date
+      .replace(/\s+/g, ' ')  // Replace multiple spaces with single space
+      .trim()  // Remove leading/trailing whitespace
+  }
+
   const processBankCsv = async (file: File) => {
     return new Promise<Transacao[]>((resolve, reject) => {
       const reader = new FileReader()
@@ -257,26 +266,24 @@ export function useUploadManager() {
           const bankTransactionsData = results.data as any[]
           const bankTransactions: Transacao[] = bankTransactionsData
             .filter(transaction => {
-              const descricao = (transaction["Lancamento"] + ' ' + transaction["Detalhes"]).toLowerCase()
+              const descricao = (transaction["Lançamento"] + ' ' + transaction["Detalhes"]).toLowerCase()
               return !descricao.startsWith("bb rende") && !descricao.startsWith("saldo") && !descricao.startsWith("S A L D O")
             })
             .map((transaction, index) => {
-              const descricao = transaction["Lancamento"] + ' ' + transaction["Detalhes"]
+              const descricao = cleanDescription(transaction["Lancamento"] + ' ' + transaction["Detalhes"])
               const categoryMatch = findMatchingCategory(descricao)
+              
               const [day, month, year] = transaction["Data"].split('/')
               
               const valor = parseFloat(transaction["Valor"].replace(/\./g, '').replace(',', '.'))
-              const valorAjustado = transaction["Tipo Lancamento"]?.toLowerCase() === "entrada" 
-                ? Math.abs(valor) 
-                : -Math.abs(valor)
-
+              
               const bankTransaction: Transacao = {
                 id: Date.now() + index,
                 data: `${day}/${month}/${year}`,
                 descricao: descricao,
                 cidade: '',
                 pais: "BR",
-                valor: valorAjustado,
+                valor: valor,
                 categoria: categoryMatch?.category || null,
                 subcategoria: categoryMatch?.subcategory || null,
                 mesReferencia: parseInt(month),

@@ -13,6 +13,15 @@ interface TransactionTableProps {
   onSubcategoryChange?: (id: number, subcategory: string) => void
 }
 
+  // Function to determine row color based on transaction type
+  const getRowColor = (transaction: Transacao) => {
+    if (transaction.categoria === "Não contábil") return "bg-gray-100";
+    if (transaction.subcategoria === "Investimento") return "bg-blue-100";
+    if (transaction.valor > 0) return "bg-green-100";
+    if (transaction.valor < 0) return "bg-red-100";
+    return "";
+  };
+
 export default function TransactionTable({ 
   transactions, 
   onEdit, 
@@ -37,7 +46,10 @@ export default function TransactionTable({
         </TableHeader>
         <TableBody>
           {transactions.map((transaction) => (
-            <TableRow key={transaction.id}>
+             <TableRow 
+             key={transaction.id} 
+             className={getRowColor(transaction)}
+           >
               <TableCell>{transaction.data}</TableCell>
               <TableCell>{transaction.descricao}</TableCell>
               <TableCell>{transaction.parcela}</TableCell>
