@@ -36,22 +36,25 @@ export function useUploadManager() {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const fetchedTransactions = await getTransactions(accountId);
-        const mappedTransactions: Transacao[] = fetchedTransactions.map(transaction => ({
-          id: Date.now() + Math.random()+ Math.random(), // Generate a temporary ID
-          data: '01/01/2011',
-          descricao: transaction.descricao,
-          cidade: '', // Assuming city is not available in Firestore
-          pais: transaction.pais || '',
-          valor: transaction.valor,
-          categoria: transaction.categoria as CategoriaKeys | null,
-          subcategoria: transaction.subcategoria || null,
-          mesReferencia: transaction.mesReferencia,
-          anoReferencia: transaction.anoReferencia,
-          origem: transaction.origem || 'unknown', // Default origin
-          parcela: null
-        }));
-        setTransactionsReferencia(mappedTransactions);
+        // Only fetch transactions if accountId is not null
+        if (accountId) {
+          const fetchedTransactions = await getTransactions(accountId);
+          const mappedTransactions: Transacao[] = fetchedTransactions.map(transaction => ({
+            id: Date.now() + Math.random()+ Math.random(), // Generate a temporary ID
+            data: '01/01/2011',
+            descricao: transaction.descricao,
+            cidade: '', // Assuming city is not available in Firestore
+            pais: transaction.pais || '',
+            valor: transaction.valor,
+            categoria: transaction.categoria as CategoriaKeys | null,
+            subcategoria: transaction.subcategoria || null,
+            mesReferencia: transaction.mesReferencia,
+            anoReferencia: transaction.anoReferencia,
+            origem: transaction.origem || 'unknown', // Default origin
+            parcela: null
+          }));
+          setTransactionsReferencia(mappedTransactions);
+        }
       } catch (error) {
         console.error("Error fetching transactions:", error);
         setError("Erro ao buscar transações");
