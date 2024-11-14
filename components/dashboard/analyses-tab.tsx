@@ -1,12 +1,11 @@
 "use client"
 
 import React, { useState, useMemo } from 'react'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select"
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { BarChart, Bar } from 'recharts'
-import { Transaction } from "@/lib/interfaces"
-import categorias from "@/lib/categorias.json"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Transaction } from "lib/interfaces"
+import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card"
 
 interface AnalysesTabProps {
   transactions: Transaction[]

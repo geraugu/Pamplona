@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
+import { Button } from "components/ui/button"
 
 interface UploadSelectorProps {
   onSelectUploadType: (type: 'credit_card' | 'investment' | 'bank_statement') => void

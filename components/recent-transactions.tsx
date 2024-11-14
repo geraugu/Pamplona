@@ -1,6 +1,6 @@
 "use client"
 
-import { Avatar } from "@/components/ui/avatar"
+import { Avatar } from "components/ui/avatar"
 
 interface Transaction {
   data: {

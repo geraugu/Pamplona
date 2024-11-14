@@ -1,14 +1,14 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Investment } from "@/lib/interfaces"
-import { formatCurrency, formatDate } from "@/lib/utils"
+import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "components/ui/table"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select"
+import { Investment } from "lib/interfaces"
+import { formatCurrency, formatDate } from "lib/utils"
 import { collection, query, where, getDocs, orderBy } from "firebase/firestore"
-import { db } from "@/services/firebase"
-import { useAuth } from "@/components/auth/authContext"
+import { db } from "services/firebase"
+import { useAuth } from "components/auth/authContext"
 
 export function InvestmentsTab() {
   const [investments, setInvestments] = useState<Investment[]>([]);

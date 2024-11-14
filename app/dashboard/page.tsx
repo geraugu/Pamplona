@@ -1,17 +1,17 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useAuth } from "@/components/auth/authContext"
-import { db } from "@/services/firebase"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs"
+import { useAuth } from "components/auth/authContext"
+import { db } from "services/firebase"
 import { collection, query, where, getDocs, orderBy } from "firebase/firestore"
 import { useRouter } from "next/navigation"
-import { Transaction } from "@/lib/interfaces"
-import { monthNames } from "@/lib/utils"
-import { OverviewTab } from "@/components/dashboard/overview-tab"
-import { TransactionsTab } from "@/components/dashboard/transactions-tab"
-import { InvestmentsTab } from "@/components/dashboard/investments-tab"
-import { AnalysesTab } from "@/components/dashboard/analyses-tab"
+import { Transaction } from "lib/interfaces"
+import { monthNames } from "lib/utils"
+import { OverviewTab } from "components/dashboard/overview-tab"
+import { TransactionsTab } from "components/dashboard/transactions-tab"
+import { InvestmentsTab } from "components/dashboard/investments-tab"
+import { AnalysesTab } from "components/dashboard/analyses-tab"
 
 export default function DashboardPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);

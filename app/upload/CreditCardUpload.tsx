@@ -6,7 +6,6 @@ import { Input } from 'components/ui/input'
 import { Label } from 'components/ui/label'
 import * as pdfjsLib from 'pdfjs-dist'
 import { Transacao, CategoriaKeys } from './interfaces'
-import categorias from 'lib/categorias.json'
 
 interface CreditCardUploadProps {
   onBack: () => void

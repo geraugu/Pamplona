@@ -1,25 +1,33 @@
-[debug] [2024-11-14T18:35:42.254Z] ----------------------------------------------------------------------
-[debug] [2024-11-14T18:35:42.257Z] Command:       C:\node-v22.11.0-win-x64\node-v22.11.0-win-x64\node.exe C:\node-v22.11.0-win-x64\node-v22.11.0-win-x64\node_modules\firebase-tools\lib\bin\firebase.js init hosting
-[debug] [2024-11-14T18:35:42.258Z] CLI Version:   13.25.0
-[debug] [2024-11-14T18:35:42.258Z] Platform:      win32
-[debug] [2024-11-14T18:35:42.258Z] Node Version:  v22.11.0
-[debug] [2024-11-14T18:35:42.258Z] Time:          Thu Nov 14 2024 15:35:42 GMT-0300 (Horário Padrão de Brasília)
-[debug] [2024-11-14T18:35:42.258Z] ----------------------------------------------------------------------
+[debug] [2024-11-14T18:40:22.814Z] ----------------------------------------------------------------------
+[debug] [2024-11-14T18:40:22.818Z] Command:       C:\node-v22.11.0-win-x64\node-v22.11.0-win-x64\node.exe C:\node-v22.11.0-win-x64\node-v22.11.0-win-x64\node_modules\firebase-tools\lib\bin\firebase.js deploy
+[debug] [2024-11-14T18:40:22.819Z] CLI Version:   13.25.0
+[debug] [2024-11-14T18:40:22.819Z] Platform:      win32
+[debug] [2024-11-14T18:40:22.819Z] Node Version:  v22.11.0
+[debug] [2024-11-14T18:40:22.819Z] Time:          Thu Nov 14 2024 15:40:22 GMT-0300 (Horário Padrão de Brasília)
+[debug] [2024-11-14T18:40:22.819Z] ----------------------------------------------------------------------
 [debug] 
-[debug] [2024-11-14T18:35:42.330Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] [2024-11-14T18:35:42.330Z] > authorizing via signed-in user (geraldo.morais@gmail.com)
-[info] 
-     ######## #### ########  ######## ########     ###     ######  ########
-     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
-     ######    ##  ########  ######   ########  #########  ######  ######
-     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
-     ##       #### ##     ## ######## ########  ##     ##  ######  ########
-
-You're about to initialize a Firebase project in this directory:
-
-  C:\Users\89741803168\projetos\pamplona2\pamplona
-
-Before we get started, keep in mind:
-
-  * You are initializing within an existing Firebase project directory
-
+[debug] [2024-11-14T18:40:22.933Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-11-14T18:40:22.933Z] > authorizing via signed-in user (geraldo.morais@gmail.com)
+[debug] [2024-11-14T18:40:22.933Z] [iam] checking project pamplona-5a03d for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2024-11-14T18:40:22.935Z] Checked if tokens are valid: true, expires at: 1731612762625
+[debug] [2024-11-14T18:40:22.935Z] Checked if tokens are valid: true, expires at: 1731612762625
+[debug] [2024-11-14T18:40:22.936Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/pamplona-5a03d:testIamPermissions [none]
+[debug] [2024-11-14T18:40:22.936Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/pamplona-5a03d:testIamPermissions x-goog-quota-user=projects/pamplona-5a03d
+[debug] [2024-11-14T18:40:22.936Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/pamplona-5a03d:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2024-11-14T18:40:23.991Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/pamplona-5a03d:testIamPermissions 200
+[debug] [2024-11-14T18:40:23.991Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/pamplona-5a03d:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2024-11-14T18:40:23.992Z] Checked if tokens are valid: true, expires at: 1731612762625
+[debug] [2024-11-14T18:40:23.992Z] Checked if tokens are valid: true, expires at: 1731612762625
+[debug] [2024-11-14T18:40:23.992Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/pamplona-5a03d [none]
+[debug] [2024-11-14T18:40:24.570Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/pamplona-5a03d 200
+[debug] [2024-11-14T18:40:24.570Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/pamplona-5a03d {"projectId":"pamplona-5a03d","projectNumber":"890241359248","displayName":"pamplona","name":"projects/pamplona-5a03d","resources":{"hostingSite":"pamplona-5a03d"},"state":"ACTIVE","etag":"1_23b8e462-3989-4de4-a3b0-fff31c525db8"}
+[debug] [2024-11-14T18:40:37.532Z] SyntaxError: Unexpected end of JSON input
+    at JSON.parse (<anonymous>)
+    at findDependency (C:\node-v22.11.0-win-x64\node-v22.11.0-win-x64\node_modules\firebase-tools\lib\frameworks\utils.js:188:23)
+    at prepareFrameworks (C:\node-v22.11.0-win-x64\node-v22.11.0-win-x64\node_modules\firebase-tools\lib\frameworks\index.js:124:67)
+    at deploy (C:\node-v22.11.0-win-x64\node-v22.11.0-win-x64\node_modules\firebase-tools\lib\deploy\index.js:58:54)
+    at Command.actionFn (C:\node-v22.11.0-win-x64\node-v22.11.0-win-x64\node_modules\firebase-tools\lib\commands\deploy.js:136:32)
+    at C:\node-v22.11.0-win-x64\node-v22.11.0-win-x64\node_modules\firebase-tools\lib\command.js:235:25
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[error] 
+[error] Error: An unexpected error has occurred.

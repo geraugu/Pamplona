@@ -4,9 +4,9 @@ import { Metadata } from "next"
 import Link from "next/link"
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "@/components/auth/authContext"
-import { cn } from "@/lib/utils"
-import { buttonVariants } from "@/components/ui/button"
+import { useAuth } from "components/auth/authContext"
+import { cn } from "lib/utils"
+import { buttonVariants } from "components/ui/button"
 
 export default function Home() {
   const { user } = useAuth();
