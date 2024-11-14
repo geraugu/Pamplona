@@ -34,7 +34,7 @@ export function CreditCardUpload({
     // Regex Atualizada com flags global e case-insensitive
     const regex = /(\d{2}\/\d{2})\s+([A-Za-z0-9\s*.-]+?)\s+(?:PARC\s+([\w\s]+?))?\s*(?:Parcela\s+(\d{1,2}\/\d{1,2}))?\s*(?:([A-Z]{2}))?\s+([\d.]+,\d{2})/gi
   
-    const matches = text.matchAll(regex)
+    const matches = Array.from(text.matchAll(regex))
     const transacoesExtraidas: Transacao[] = []
   
     // Para acompanhar as correspondências
@@ -44,7 +44,7 @@ export function CreditCardUpload({
       matchFound = true
       const [, data, descricao, cidadeParc, parcela, pais, valorStr] = match
       let parcelaInfo = parcela ? parcela.trim() : null
-      let cidade = cidadeParc ? cidadeParc.trim() : null
+      let cidade = cidadeParc ? cidadeParc.trim() : ''
       const valor = parseFloat(valorStr.replace(/\./g, '').replace(',', '.'))
   
       transacoesExtraidas.push({
@@ -53,7 +53,7 @@ export function CreditCardUpload({
         descricao: descricao.trim(),
         cidade: cidade,
         parcela: parcelaInfo,
-        pais: pais ? pais.trim() : null,
+        pais: pais ? pais.trim() : '',
         valor: valor < 0 ? Math.abs(valor) : -Math.abs(valor),
         categoria: findMatchingCategory(descricao.trim())?.category || null,
         subcategoria: findMatchingCategory(descricao.trim())?.subcategory || null,
@@ -70,61 +70,6 @@ export function CreditCardUpload({
     return transacoesExtraidas
   }
   
-
-  const extractCreditCardTransactions2 = async (text: string): Promise<Transacao[]> => {
-   // const regex = /(\d{2}\/\d{2})\s+([A-Za-z0-9\s*.-]+?)(?:\s+PARC\s+([A-Za-z\s]+?))?(?:\s+(Parcela\s+\d{1,2}\/\d{1,2}))?\s+([A-Z]{2})\s+([\d.]+,\d{2})/g
-    const regex = /^(?!.*\*\*\*)\s*(\d{2}\/\d{2})\s+([A-Za-z0-9\s*.-]+?)(?:\s+PARC\s+([\w\s]+?))?(?:\s+Parcela\s+(\d{1,2}\/\d{1,2}))?(?:\s+([A-Z]{2}))?\s+([\d.]+,\d{2})\s*$/i
-
-
-    const linhas = text.split('\n')
-    const transacoesExtraidas: Transacao[] = []
-    linhas.forEach((linha) => {
-      let match
-      while ((match = regex.exec(linha)) !== null) {
-        console.log(match)
-        const [, data, descricao, cidadeParc, parcela, pais, valorStr] = match
-        let cidade = ''
-        let parcelaInfo: string | undefined = undefined
-        const descricaoTrimmed = descricao.trim()
-        const categoryMatch = findMatchingCategory(descricaoTrimmed)
-
-        if (cidadeParc) {
-          if (parcela) {
-            parcelaInfo = parcela.trim()
-          }
-        } else {
-          const partes = linha.trim().split(/\s+/)
-          const indiceBR = partes.indexOf('BR')
-          if (indiceBR > 0) {
-            const palavraAntes = partes[indiceBR - 2]
-            if (palavraAntes && palavraAntes.startsWith('Parcela')) {
-              parcelaInfo = partes[indiceBR - 2] + ' ' + partes[indiceBR - 1]
-            }
-          }
-        }
-
-        const valor = parseFloat(valorStr.replace(/\./g, '').replace(',', '.'))
-
-        transacoesExtraidas.push({
-          id: Date.now() + transacoesExtraidas.length,
-          data: `${data}`,
-          descricao: descricaoTrimmed,
-          cidade: cidade,
-          parcela: parcelaInfo,
-          pais,
-          valor: valor < 0 ? Math.abs(valor) : -Math.abs(valor),
-          categoria: categoryMatch?.category || null,
-          subcategoria: categoryMatch?.subcategory || null,
-          origem: 'cartao_credito',
-          mesReferencia: selectedMonth ?? undefined,
-          anoReferencia: selectedYear
-        })
-      }
-      regex.lastIndex = 0
-    })
-    return transacoesExtraidas
-  }
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!file || !selectedMonth) {
