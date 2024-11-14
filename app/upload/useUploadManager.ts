@@ -206,7 +206,7 @@ export function useUploadManager() {
           setCategoryMapping(prevMapping => {
             const updatedMapping = {...prevMapping}
             updatedMapping[normalizedDesc] = {
-              categoria: transaction.categoria,
+              categoria: transaction.categoria || '',
               subcategoria: transaction.subcategoria || '',
               count: (prevMapping[normalizedDesc]?.count || 0) + 1
             }

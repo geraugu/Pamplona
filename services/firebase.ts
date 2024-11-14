@@ -19,6 +19,7 @@ export interface Account {
 }
 
 export interface Transaction {
+  origem: string;
   data: Date;
   valor: number;
   mesReferencia: number;
@@ -130,7 +131,8 @@ export const getTransactions = async (accountId: string, currentYear: number = n
           subcategoria: data.subcategoria,
           parcela: data.parcela,
           pais: data.pais,
-          accountId: data.accountId
+          accountId: data.accountId,
+          origem: data.origem
         } as Transaction);
       }
     });
