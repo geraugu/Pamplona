@@ -42,6 +42,18 @@ export function OverviewTab({
   const lastAvailableMonth = Math.max(...transactions.map(t => t.mesReferencia))
   const lastAvailableYear = Math.max(...transactions.map(t => t.anoReferencia))
 
+  // Safe parsing of parcela string
+  const safeParseInstallment = (parcela: string | null | undefined) => {
+    if (!parcela) return { current: 0, total: 0 };
+    const parts = parcela.split('/');
+    const current = parts.length > 0 ? parseInt(parts[0], 10) : 0;
+    const total = parts.length > 1 ? parseInt(parts[1], 10) : 0;
+    return { 
+      current: isNaN(current) ? 0 : current, 
+      total: isNaN(total) ? 0 : total 
+    };
+  };
+
   // Find installment transactions from the last available month
   const installmentTransactions = transactions.filter(transaction => {
     // Check if transaction is from the last available month and year
@@ -51,15 +63,11 @@ export function OverviewTab({
     // Check if transaction has parcela information and is not fully paid
     if (!isLastMonth || !transaction.parcela) return false;
 
-    // Split parcela to check if it's not fully paid
-    const [parcelaAtual, parcelas] = transaction.parcela.split('/')
+    // Safe parsing of installment
+    const { current, total } = safeParseInstallment(transaction.parcela);
     
-    // Parse installment numbers
-    const currentInstallment = parseInt(parcelaAtual)
-    const totalInstallments = parseInt(parcelas)
-
     // Keep only transactions that are not fully paid
-    return currentInstallment < totalInstallments
+    return current > 0 && total > 0 && current < total;
   });
 
   // Calculate total value of installment transactions
@@ -68,8 +76,8 @@ export function OverviewTab({
 
   // Calculate total value of penultimate installment transactions
   const penultimateInstallmentTransactions = installmentTransactions.filter(transaction => {
-    const [parcelaAtual, parcelas] = transaction.parcela.split('/')
-    return parseInt(parcelaAtual) === parseInt(parcelas) - 1
+    const { current, total } = safeParseInstallment(transaction.parcela);
+    return current === total - 1;
   });
 
   const totalPenultimateInstallmentValue = penultimateInstallmentTransactions.reduce((acc, transaction) => 
@@ -193,10 +201,9 @@ export function OverviewTab({
                 </TableHeader>
                 <TableBody>
                   {installmentTransactions.map((transaction, index) => {
-                    // Check if this is the penultimate installment
-                    const [parcelaAtual, parcelas] = transaction.parcela.split('/')
-                    const isPenultimateParcela = 
-                      parseInt(parcelaAtual) === parseInt(parcelas) - 1
+                    // Safe parsing of installment
+                    const { current, total } = safeParseInstallment(transaction.parcela);
+                    const isPenultimateParcela = current === total - 1;
 
                     return (
                       <TableRow 
@@ -205,7 +212,7 @@ export function OverviewTab({
                       >
                         <TableCell>{transaction.descricao}</TableCell>
                         <TableCell>{formatCurrency(Math.abs(transaction.valor))}</TableCell>
-                        <TableCell>{transaction.parcela}</TableCell>
+                        <TableCell>{transaction.parcela || 'N/A'}</TableCell>
                       </TableRow>
                     )
                   })}

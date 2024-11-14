@@ -58,7 +58,7 @@ export default function TransactionTable({
               <TableCell>
                 <Select
                   value={transaction.categoria || undefined}
-                  onValueChange={(value) => onCategoryChange?.(transaction.id, value as CategoriaKeys)}
+                  onValueChange={(value: CategoriaKeys) => onCategoryChange?.(transaction.id, value)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione..." />
@@ -75,7 +75,7 @@ export default function TransactionTable({
               <TableCell>
                 <Select
                   value={transaction.subcategoria || undefined}
-                  onValueChange={(value) => onSubcategoryChange?.(transaction.id, value)}
+                  onValueChange={(value: string) => onSubcategoryChange?.(transaction.id, value)}
                   disabled={!transaction.categoria}
                 >
                   <SelectTrigger>
@@ -83,7 +83,7 @@ export default function TransactionTable({
                   </SelectTrigger>
                   <SelectContent>
                     {transaction.categoria &&
-                      categorias[transaction.categoria].map((subcategoria) => (
+                      categorias[transaction.categoria].map((subcategoria: string) => (
                         <SelectItem key={subcategoria} value={subcategoria}>
                           {subcategoria}
                         </SelectItem>

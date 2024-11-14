@@ -18,7 +18,7 @@ export function useUploadManager() {
     const initialMapping: {[key: string]: { categoria: CategoriaKeys; subcategoria: string; count: number }} = {}
     
     Object.entries(categorias).forEach(([category, subcategories]) => {
-      subcategories.forEach((subcategory: string) => {
+      (subcategories as string[]).forEach((subcategory: string) => {
         const normalizedSubcategory = subcategory.toLowerCase().trim()
         initialMapping[normalizedSubcategory] = {
           categoria: category as CategoriaKeys,
@@ -36,21 +36,20 @@ export function useUploadManager() {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-       
-
         const fetchedTransactions = await getTransactions(accountId);
         const mappedTransactions: Transacao[] = fetchedTransactions.map(transaction => ({
           id: Date.now() + Math.random()+ Math.random(), // Generate a temporary ID
           data: '01/01/2011',
           descricao: transaction.descricao,
           cidade: '', // Assuming city is not available in Firestore
-          pais: transaction.pais,
+          pais: transaction.pais || '',
           valor: transaction.valor,
           categoria: transaction.categoria as CategoriaKeys | null,
           subcategoria: transaction.subcategoria || null,
           mesReferencia: transaction.mesReferencia,
           anoReferencia: transaction.anoReferencia,
-          origem: transaction.origem || 'unknown' // Default origin
+          origem: transaction.origem || 'unknown', // Default origin
+          parcela: null
         }));
         setTransactionsReferencia(mappedTransactions);
       } catch (error) {
@@ -62,13 +61,11 @@ export function useUploadManager() {
 
     fetchTransactions();
   }, [user, accountId]); // Add user as a dependency
-
-  // Rest of the code remains the same as in the previous implementation
   
-  const findMatchingCategory = (description: string): { category: CategoriaKeys | null; subcategory: string | null } => {
+  const findMatchingCategory = (description: string): { category: CategoriaKeys; subcategory: string } => {
     if (transactionsReferencia.length === 0) {
-      console.warn("No transactions available for matching categories.");
-      return { category: null, subcategory: null };
+      console.warn("No transactions available for matching categories. Using default.");
+      return { category: 'Não contábil', subcategory: categorias['Não contábil'][0] };
     }
 
     const normalizedDesc = description.toLowerCase().trim()
@@ -79,14 +76,12 @@ export function useUploadManager() {
     const currentMonth = currentDate.getMonth() + 1; // JavaScript months are 0-indexed
 
     // Filter transactions from the last two months with categories and subcategories
-   
     const recentTransactionsWithCategories = transactionsReferencia.filter(transaction => 
       transaction.categoria && 
       transaction.subcategoria && 
-      (
-        (transaction.anoReferencia === currentYear && transaction.mesReferencia < currentMonth) 
-      )
+      (transaction.anoReferencia === currentYear && (transaction.mesReferencia || 0) < currentMonth) 
     );
+
     // Exact match in category mapping
     if (categoryMapping[normalizedDesc]) {
       return {
@@ -100,8 +95,8 @@ export function useUploadManager() {
       const transactionDesc = transaction.descricao.toLowerCase();
       if (transactionDesc.includes(normalizedDesc) || normalizedDesc.includes(transactionDesc)) {
         return {
-          category: transaction.categoria,
-          subcategory: transaction.subcategoria
+          category: transaction.categoria!,
+          subcategory: transaction.subcategoria!
         }
       }
     }
@@ -134,7 +129,7 @@ export function useUploadManager() {
     return mapTransactionToCategory(description)
   }
 
-  const mapTransactionToCategory = (description: string) => {
+  const mapTransactionToCategory = (description: string): { category: CategoriaKeys; subcategory: string } => {
     const categoriaKeys = Object.keys(categorias) as CategoriaKeys[]
     for (const category of categoriaKeys) {
       const subcategories = categorias[category] as string[]
@@ -144,7 +139,11 @@ export function useUploadManager() {
         }
       }
     }
-    return { category: null, subcategory: null }
+   // Default to 'Não contábil' if no match found
+   return { 
+    category: 'Não contábil', 
+    subcategory: categorias['Não contábil'][0] 
+  }
   }
 
   const extractCreditCardTransactions = async (
@@ -188,11 +187,11 @@ export function useUploadManager() {
           data: `${data}`,
           descricao: descricaoTrimmed,
           cidade: cidade,
-          parcela: parcelaInfo,
-          pais,
+          parcela: parcelaInfo || null,
+          pais: pais || '',
           valor: valor < 0 ? Math.abs(valor) : -Math.abs(valor),
-          categoria: categoryMatch?.category || null,
-          subcategoria: categoryMatch?.subcategory || null,
+          categoria: categoryMatch.category,
+          subcategoria: categoryMatch.subcategory,
           origem: 'cartao_credito',
           mesReferencia: selectedMonth,
           anoReferencia: selectedYear
@@ -201,14 +200,15 @@ export function useUploadManager() {
         // Update category mapping
         if (transaction.categoria && transaction.descricao) {
           const normalizedDesc = transaction.descricao.toLowerCase().trim()
-          setCategoryMapping(prevMapping => ({
-            ...prevMapping,
-            [normalizedDesc]: {
-              categoria: transaction.categoria!,
+          setCategoryMapping(prevMapping => {
+            const updatedMapping = {...prevMapping}
+            updatedMapping[normalizedDesc] = {
+              categoria: transaction.categoria,
               subcategoria: transaction.subcategoria || '',
               count: (prevMapping[normalizedDesc]?.count || 0) + 1
             }
-          }))
+            return updatedMapping
+          })
         }
 
         transacoesExtraidas.push(transaction)

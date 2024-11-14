@@ -171,6 +171,15 @@ export default function UploadPage() {
       )
     : transactions
 
+  // Wrapper for findMatchingCategory to ensure non-null return
+  const safeFindMatchingCategory = (description: string) => {
+    const result = findMatchingCategory(description)
+    return {
+      category: result.category || 'Não contábil' as CategoriaKeys,
+      subcategory: result.subcategory || categorias['Não contábil'][0]
+    }
+  }
+
   return (
     <>
       <Card className="w-full mx-auto">
@@ -186,7 +195,7 @@ export default function UploadPage() {
             <CreditCardUpload 
               onBack={() => setUploadType('none')}
               onExtractTransactions={handleCreditCardExtract}
-              findMatchingCategory={findMatchingCategory}
+              findMatchingCategory={safeFindMatchingCategory}
             />
           )}
 
@@ -201,7 +210,7 @@ export default function UploadPage() {
             <BankStatementUpload 
               onBack={() => setUploadType('none')}
               onExtractTransactions={handleBankStatementExtract}
-              findMatchingCategory={findMatchingCategory}
+              findMatchingCategory={safeFindMatchingCategory}
             />
           )}
 
@@ -226,7 +235,7 @@ export default function UploadPage() {
               <Label>Mês de Referência</Label>
               <Select 
                 value={selectedMonth ? selectedMonth.toString() : undefined} 
-                onValueChange={(value) => setSelectedMonth(parseInt(value))}
+                onValueChange={(value: string) => setSelectedMonth(parseInt(value, 10))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o mês" />
@@ -350,7 +359,7 @@ export default function UploadPage() {
                       <SelectValue placeholder="Selecione a subcategoria" />
                     </SelectTrigger>
                     <SelectContent>
-                      {categorias[editingTransaction.categoria].map((subcategoria) => (
+                      {categorias[editingTransaction.categoria].map((subcategoria: string) => (
                         <SelectItem key={subcategoria} value={subcategoria}>
                           {subcategoria}
                         </SelectItem>

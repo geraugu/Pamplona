@@ -511,8 +511,6 @@ export function TransactionsTab({
             ...prev,
             parcela: value || null
           }))}
-          placeholder="Ex: 1/12 (opcional)"
-                      className="col-span-3" 
                     />
                   </div>
                 </div>
