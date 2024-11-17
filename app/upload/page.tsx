@@ -17,7 +17,7 @@ import { BankStatementUpload } from './BankStatementUpload'
 
 import TransactionTable from './TransactionTable'
 import InvestmentTable from './InvestmentTable'
-import { Transacao, Investimento, CategoriaKeys } from './interfaces'
+import { Transacao,  CategoriaKeys } from './interfaces'
 import categorias from 'lib/categorias.json'
 
 // Import PDF.js
@@ -41,8 +41,6 @@ export default function UploadPage() {
     error,
     saving,
     findMatchingCategory,
-    processCreditCardPdf,
-    processBankCsv,
     processInvestmentCsv,
     saveTransactions,
     saveInvestments,
