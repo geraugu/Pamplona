@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useReducer, useEffect } from "react";
-import { auth, getAccountForUser } from "@/services/firebase";
+import { auth, getAccountForUser } from "/services/firebase";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,

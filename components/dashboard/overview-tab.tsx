@@ -1,7 +1,7 @@
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card"
-import { Overview } from "components/overview"
+import { Overview } from "components/Overview"
 import { Transaction } from "lib/interfaces"
 import { formatCurrency } from "lib/utils"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from "components/ui/table"
