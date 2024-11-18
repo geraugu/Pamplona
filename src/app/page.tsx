@@ -24,7 +24,7 @@ export default function Home() {
             >
               <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
             </svg>
-            Finanças do Casal2
+            Finanças Familiar
           </div>
           <div className="relative z-20 mt-auto">
             <blockquote className="space-y-2">
@@ -38,7 +38,7 @@ export default function Home() {
           <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
             <div className="flex flex-col space-y-2 text-center">
               <h1 className="text-2xl font-semibold tracking-tight text-neutral-900">
-                Bem-vindos ao Finanças do Casal
+                Bem-vindos ao Finanças Familiar
               </h1>
               <p className="text-sm text-neutral-700">
                 Gerencie suas finanças juntos e alcance seus objetivos
@@ -55,12 +55,12 @@ export default function Home() {
                     >
                       Acessar Dashboard
                     </Link>
-                    <Link 
+                    {/* <Link 
                       href="/upload" 
                       className="w-full px-4 py-2 bg-secondary text-white rounded-md hover:bg-secondary-600 transition-colors text-center font-semibold"
                     >
                       Carregar Extrato Bancário
-                    </Link>
+                    </Link> */}
                   </div>
                 </>
               ) : (
