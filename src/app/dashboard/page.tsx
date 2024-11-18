@@ -8,10 +8,11 @@ import { collection, query, where, getDocs, orderBy } from "firebase/firestore"
 import { useRouter } from "next/navigation"
 import { Transaction } from "../components/lib/interfaces"
 import { monthNames } from "../components/lib/utils"
+import { colors } from "../styles/colors"
 import { OverviewTab } from "./tabs/overview-tab"
-//import { TransactionsTab } from "components/dashboard/transactions-tab"
-//import { InvestmentsTab } from "components/dashboard/investments-tab"
-//import { AnalysesTab } from "components/dashboard/analyses-tab"
+// import { TransactionsTab } from "./tabs/transactions-tab"
+// import { InvestmentsTab } from "./tabs/investments-tab"
+// import { AnalysesTab } from "./tabs/analyses-tab"
 
 export default function DashboardPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -124,11 +125,36 @@ export default function DashboardPage() {
           <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
         </div>
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-            <TabsTrigger value="transactions">Transações</TabsTrigger>
-            <TabsTrigger value="investments">Investimentos</TabsTrigger>
-            <TabsTrigger value="analyses">Análises</TabsTrigger>
+          <TabsList 
+            className="grid grid-cols-4 bg-neutral-100 p-1 rounded-lg"
+            style={{
+              gridTemplateColumns: 'repeat(4, 1fr)',
+            }}
+          >
+            <TabsTrigger 
+              value="overview" 
+              className="data-[state=active]:bg-secondary data-[state=active]:text-white rounded-md transition-colors"
+            >
+              Visão Geral
+            </TabsTrigger>
+            <TabsTrigger 
+              value="transactions" 
+              className="data-[state=active]:bg-secondary data-[state=active]:text-white rounded-md transition-colors"
+            >
+              Transações
+            </TabsTrigger>
+            <TabsTrigger 
+              value="investments" 
+              className="data-[state=active]:bg-secondary data-[state=active]:text-white rounded-md transition-colors"
+            >
+              Investimentos
+            </TabsTrigger>
+            <TabsTrigger 
+              value="analyses" 
+              className="data-[state=active]:bg-secondary data-[state=active]:text-white rounded-md transition-colors"
+            >
+              Análises
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="overview">
             <OverviewTab 
