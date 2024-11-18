@@ -5,11 +5,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
 import { useAuth } from "../components/auth/authContext"
 import { db } from "../services/firebase"
 import { collection, query, where, getDocs, orderBy } from "firebase/firestore"
-import { useRouter } from "next/navigation"
 import { Transaction } from "../components/lib/interfaces"
 import { monthNames } from "../components/lib/utils"
 import { OverviewTab } from "./tabs/overview-tab"
 import { TransactionsTab } from "./tabs/transactions-tab"
+import Link from "next/link"
 // import { InvestmentsTab } from "./tabs/investments-tab"
 // import { AnalysesTab } from "./tabs/analyses-tab"
 
@@ -23,7 +23,6 @@ export default function DashboardPage() {
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>("all");
   const [selectedOrigin, setSelectedOrigin] = useState<string>("all");
   const { user, accountId, loading: authLoading } = useAuth();
-  const router = useRouter();
 
   // Get available years and months from transactions
   const dates = transactions.map(t => {
@@ -66,12 +65,6 @@ export default function DashboardPage() {
       return;
     }
 
-    // If no user, redirect to login
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-
     // If no account ID, do nothing (it might be in the process of being created)
     if (!accountId) {
       setLoading(false);
@@ -105,7 +98,7 @@ export default function DashboardPage() {
     };
 
     fetchTransactions();
-  }, [user, accountId, router, authLoading]);
+  }, [accountId, authLoading]);
 
   const getSelectedMonthName = () => {
     if (!selectedMonth) return "";
@@ -118,9 +111,13 @@ export default function DashboardPage() {
     return <div className="flex items-center justify-center h-screen">Carregando...</div>;
   }
 
-  // Redirect to login if no user
+  // If no user is logged in, show a message with a login link
   if (!user) {
-    return null;
+    return (
+      <div className="flex items-center justify-center h-screen text-xl text-gray-600">
+        Você não está logado. Por favor, faça  <Link href="/login" className="text-blue-600 hover:underline"> login </Link>  para acessar o dashboard.
+      </div>
+    );
   }
 
   if (loading) {
