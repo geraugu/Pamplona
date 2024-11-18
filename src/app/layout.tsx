@@ -2,9 +2,6 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from "./components/auth/authContext";
-import "@radix-ui/themes/styles.css";
-import { Theme } from "@radix-ui/themes";
-
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -32,9 +29,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Theme>
         <AuthProvider>{children}</AuthProvider>
-        </Theme>
       </body>
     </html>
   );
