@@ -22,7 +22,7 @@ export default function DashboardPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>("all");
   const [selectedOrigin, setSelectedOrigin] = useState<string>("all");
-  const { user, accountId } = useAuth();
+  const { user, accountId, loading: authLoading } = useAuth();
   const router = useRouter();
 
   // Get available years and months from transactions
@@ -61,12 +61,20 @@ export default function DashboardPage() {
   const totalIncome = 0; // You might want to add an income field to transactions later
 
   useEffect(() => {
+    // If authentication is still loading, do nothing
+    if (authLoading) {
+      return;
+    }
+
+    // If no user, redirect to login
     if (!user) {
       router.push('/login');
       return;
     }
 
+    // If no account ID, do nothing (it might be in the process of being created)
     if (!accountId) {
+      setLoading(false);
       return;
     }
 
@@ -97,7 +105,7 @@ export default function DashboardPage() {
     };
 
     fetchTransactions();
-  }, [user, accountId, router]);
+  }, [user, accountId, router, authLoading]);
 
   const getSelectedMonthName = () => {
     if (!selectedMonth) return "";
@@ -105,6 +113,12 @@ export default function DashboardPage() {
     return monthNames[monthKey as keyof typeof monthNames] || "";
   };
 
+  // Show loading state while authentication is being resolved
+  if (authLoading) {
+    return <div className="flex items-center justify-center h-screen">Carregando...</div>;
+  }
+
+  // Redirect to login if no user
   if (!user) {
     return null;
   }
