@@ -1,18 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation"
-import { useAuth } from "./components/auth/authContext"
-import { useEffect } from "react"
 import Link from "next/link"
+import { useAuth } from "./components/auth/authContext"
 
 export default function Home() {
   const { user } = useAuth();
-  const router = useRouter();
-  useEffect(() => {
-    if (!user) {
-      router.push('/login');
-    }
-  }, [user, router]);
 
   return (
     <>
@@ -51,25 +43,36 @@ export default function Home() {
               <p className="text-sm text-neutral-700">
                 Gerencie suas finanças juntos e alcance seus objetivos
               </p>
-              {user && (
-                <p className="text-sm text-neutral-600 mt-2">
-                  Logado como: {user.email}
-                </p>
+              {user ? (
+                <>
+                  <p className="text-sm text-neutral-600 mt-2">
+                    Logado como: {user.email}
+                  </p>
+                  <div className="grid gap-4">
+                    <Link 
+                      href="/dashboard" 
+                      className="w-full px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-600 transition-colors text-center font-semibold"
+                    >
+                      Acessar Dashboard
+                    </Link>
+                    <Link 
+                      href="/upload" 
+                      className="w-full px-4 py-2 bg-secondary text-white rounded-md hover:bg-secondary-600 transition-colors text-center font-semibold"
+                    >
+                      Carregar Extrato Bancário
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <div className="grid gap-4 mt-4">
+                  <Link 
+                    href="/login" 
+                    className="w-full px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-600 transition-colors text-center font-semibold"
+                  >
+                    Fazer Login
+                  </Link>
+                </div>
               )}
-            </div>
-            <div className="grid gap-4">
-              <Link 
-                href="/dashboard" 
-                className="w-full px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-600 transition-colors text-center font-semibold"
-              >
-                Acessar Dashboard
-              </Link>
-              <Link 
-                href="/upload" 
-                className="w-full px-4 py-2 bg-secondary text-white rounded-md hover:bg-secondary-600 transition-colors text-center font-semibold"
-              >
-                Carregar Extrato Bancário
-              </Link>
             </div>
           </div>
         </div>
