@@ -31,7 +31,7 @@ enum AuthActionType {
 
 interface AuthAction {
   type: AuthActionType;
-  payload?: any;
+  payload?: User | string | null;
 }
 
 const initialState: AuthState = {
@@ -48,16 +48,16 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
       return { ...state, loading: true, error: null };
     case AuthActionType.LOGIN_SUCCESS:
     case AuthActionType.SIGNUP_SUCCESS:
-      return { ...state, loading: false, user: action.payload, error: null };
+      return { ...state, loading: false, user: action.payload as User, error: null };
     case AuthActionType.LOGIN_FAILURE:
     case AuthActionType.SIGNUP_FAILURE:
-      return { ...state, loading: false, error: action.payload };
+      return { ...state, loading: false, error: action.payload as string };
     case AuthActionType.LOGOUT:
       return { ...state, user: null, accountId: null };
     case AuthActionType.SET_USER:
-      return { ...state, user: action.payload };
+      return { ...state, user: action.payload as User | null };
     case AuthActionType.SET_ACCOUNT:
-      return { ...state, accountId: action.payload };
+      return { ...state, accountId: action.payload as string | null };
     default:
       return state;
   }
@@ -102,11 +102,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       const accountId = await getAccountForUser(userCredential.user.uid);
       dispatch({ type: AuthActionType.SET_ACCOUNT, payload: accountId });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Login error:", error);
       dispatch({ 
         type: AuthActionType.LOGIN_FAILURE, 
-        payload: error.message || "Erro ao fazer login" 
+        payload: error instanceof Error ? error.message : "Erro ao fazer login"
       });
       throw error;
     }
@@ -123,11 +123,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       const accountId = await getAccountForUser(userCredential.user.uid);
       dispatch({ type: AuthActionType.SET_ACCOUNT, payload: accountId });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Signup error:", error);
       dispatch({ 
         type: AuthActionType.SIGNUP_FAILURE, 
-        payload: error.message || "Erro ao criar conta" 
+        payload: error instanceof Error ? error.message : "Erro ao criar conta"
       });
       throw error;
     }
@@ -137,7 +137,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await signOut(auth);
       dispatch({ type: AuthActionType.LOGOUT });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Logout error:", error);
       throw error;
     }

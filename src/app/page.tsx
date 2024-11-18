@@ -37,7 +37,7 @@ export default function Home() {
           <div className="relative z-20 mt-auto">
             <blockquote className="space-y-2">
               <p className="text-lg">
-                "Gerencie suas finanças juntos e alcance seus objetivos financeiros como casal."
+                Gerencie suas finanças juntos e alcance seus objetivos financeiros como casal.
               </p>
             </blockquote>
           </div>
