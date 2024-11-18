@@ -8,9 +8,8 @@ import { collection, query, where, getDocs, orderBy } from "firebase/firestore"
 import { useRouter } from "next/navigation"
 import { Transaction } from "../components/lib/interfaces"
 import { monthNames } from "../components/lib/utils"
-import { colors } from "../styles/colors"
 import { OverviewTab } from "./tabs/overview-tab"
-// import { TransactionsTab } from "./tabs/transactions-tab"
+import { TransactionsTab } from "./tabs/transactions-tab"
 // import { InvestmentsTab } from "./tabs/investments-tab"
 // import { AnalysesTab } from "./tabs/analyses-tab"
 
@@ -52,7 +51,7 @@ export default function DashboardPage() {
     const monthMatch = t.mesReferencia === parseInt(selectedMonth);
     const categoryMatch = selectedCategory === "all" || t.categoria === selectedCategory;
     const subcategoryMatch = selectedSubcategory === "all" || t.subcategoria === selectedSubcategory;
-    const transactionOrigin = (t as any).origem || 'conta_bancaria';
+    const transactionOrigin = t.origem || 'conta_bancaria';
     const originMatch = selectedOrigin === "all" || transactionOrigin === selectedOrigin;
     return yearMatch && monthMatch && categoryMatch && subcategoryMatch && originMatch;
   }).sort((a, b) => b.data.toDate().getTime() - a.data.toDate().getTime());
@@ -166,7 +165,7 @@ export default function DashboardPage() {
             />
           </TabsContent>
           <TabsContent value="transactions">
-            {/* <TransactionsTab 
+            <TransactionsTab 
               transactions={transactions}
               years={years}
               months={months}
@@ -182,7 +181,7 @@ export default function DashboardPage() {
               setSelectedOrigin={setSelectedOrigin}
               setTransactions={setTransactions}
               accountId={accountId || ''}
-            /> */}
+            />
           </TabsContent>
           <TabsContent value="investments">
             {/* <InvestmentsTab /> */}

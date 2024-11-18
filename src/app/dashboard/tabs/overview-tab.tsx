@@ -16,10 +16,7 @@ interface OverviewTabProps {
 
 export function OverviewTab({ 
   transactions, 
-  totalIncome, 
-  totalExpenses, 
-  selectedMonthName,
-  filteredTransactions 
+  selectedMonthName
 }: OverviewTabProps) {
   const currentYear = new Date().getFullYear();
 
