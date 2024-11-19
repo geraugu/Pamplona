@@ -94,6 +94,4 @@ export interface Investimento {
   dataReferencia?: Date;
   accountId?: string;
   createdAt?: Timestamp;
-  [key: string]: any;
 }
-
