@@ -18,7 +18,8 @@ export default function UploadInfoPage() {
     const [editingTransaction, setEditingTransaction] = useState<Transacao | null>(null)
    
     useEffect(() => {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.js`
+         pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.mjs`
+        // pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdn.jsdelivr.net/npm/pdfjs-dist/build/${pdfjsLib.version}/pdf.worker.min.js`
     }, [])
 
     const processCreditCardPdf = async (file: File) => {
