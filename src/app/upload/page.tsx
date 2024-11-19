@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = 'force-dynamic';
 
 import { useState, ChangeEvent, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
@@ -22,7 +23,7 @@ import { Transacao, CategoriaKeys } from '../components/lib/interfaces'
 import categorias from '../components/lib/categorias.json'
 
 // Import PDF.js
-//import * as pdfjsLib from 'pdfjs-dist'
+import * as pdfjsLib from 'pdfjs-dist'
 
 export default function UploadPage() {
   const [uploadType, setUploadType] = useState<'none' | 'credit_card' | 'investment' | 'bank_statement'>('none')
@@ -33,7 +34,7 @@ export default function UploadPage() {
 
   // Configure PDF.js worker
   useEffect(() => {
-   // pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.mjs`
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.mjs`
   }, [])
 
   const {
