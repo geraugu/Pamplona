@@ -1,102 +1,59 @@
 'use client'
 
-import React, { useState, ChangeEvent,useEffect } from 'react'
-import { Button } from '@/app/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card'
-import { Input } from '@/app/components/ui/input'
-// import  TransactionTable  from './components/TransactionTable'
+import React, { useState, ChangeEvent, useEffect } from 'react'
+import { Button } from '../components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
+import { Input } from '../components/ui/input'
 import { Transacao, CategoriaKeys } from '../components/lib/interfaces'
 import { toast } from 'sonner'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/app/components/ui/dialog'
-import { Label } from '@/app/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select'
-import categorias from '../../app/components/lib/categorias.json'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '../components/ui/dialog'
+import { Label } from '../components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
+import categorias from '../components/lib/categorias.json'
 import * as pdfjsLib from 'pdfjs-dist'
 
-
 export default function UploadInfoPage() {
-    const [bankStatementFile, setBankStatementFile] = useState<File | null>(null)
     const [creditCardFile, setCreditCardFile] = useState<File | null>(null)
-    const [investmentFile, setInvestmentFile] = useState<File | null>(null)
-    // const [showOnlyUncategorized, setShowOnlyUncategorized] = useState<boolean>(true)
     const [editingTransaction, setEditingTransaction] = useState<Transacao | null>(null)
-   
-    useEffect(() => {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.mjs`
-      }, [])
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.mjs`
+  
 
-
-    const handleFileUpload = (type: 'bank' | 'credit' | 'investment', file: File) => {
-        const allowedTypes = ['text/csv', 'application/vnd.ms-excel']
-
-        if (!allowedTypes.includes(file.type)) {
-            toast.error('Por favor, selecione um arquivo CSV válido.')
+    const handleFileUpload = (file: File) => {
+        if (file.type !== 'application/pdf') {
+            toast.error('Por favor, selecione um arquivo PDF para o extrato de cartão de crédito.')
             return
         }
 
-        switch (type) {
-            case 'bank':
-                setBankStatementFile(file)
-                break
-            case 'credit':
-                setCreditCardFile(file)
-                break
-            case 'investment':
-                setInvestmentFile(file)
-                break
-        }
+        setCreditCardFile(file)
     }
 
     const handleSubmit = () => {
-        if (!bankStatementFile || !creditCardFile || !investmentFile) {
-            toast.error('Por favor, faça upload de todos os três arquivos.')
-           
+        if (!creditCardFile) {
+            toast.error('Por favor, faça upload do extrato de cartão de crédito em PDF.')
             return
         }
 
-        // TODO: Implement actual file upload logic
-        toast.info('Processando arquivos...')
-       
+        // TODO: Implement actual PDF file upload logic for credit card
+        toast.info('Processando arquivo PDF...')
     }
 
     return (
         <>
         <div className="container mx-auto p-4 max-w-2xl">
-            <h1 className="text-2xl font-bold mb-6 text-center">Upload de Extratos</h1>
+            <h1 className="text-2xl font-bold mb-6 text-center">Upload de Extrato de Cartão de Crédito</h1>
 
             <div className="space-y-4">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Extrato Bancário (CSV)</CardTitle>
+                        <CardTitle>Extrato de Cartão de Crédito (PDF)</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <Input
                             type="file"
-                            accept=".csv"
+                            accept=".pdf"
                             onChange={(e) => {
                                 const file = e.target.files?.[0]
-                                if (file) handleFileUpload('bank', file)
-                            }}
-                        />
-                        {bankStatementFile && (
-                            <p className="text-sm text-gray-500 mt-2">
-                                Arquivo selecionado: {bankStatementFile.name}
-                            </p>
-                        )}
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Extrato de Cartão de Crédito (CSV)</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <Input
-                            type="file"
-                            accept=".csv"
-                            onChange={(e) => {
-                                const file = e.target.files?.[0]
-                                if (file) handleFileUpload('credit', file)
+                                if (file) handleFileUpload(file)
                             }}
                         />
                         {creditCardFile && (
@@ -107,38 +64,13 @@ export default function UploadInfoPage() {
                     </CardContent>
                 </Card>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Extrato de Investimentos (CSV)</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <Input
-                            type="file"
-                            accept=".csv"
-                            onChange={(e) => {
-                                const file = e.target.files?.[0]
-                                if (file) handleFileUpload('investment', file)
-                            }}
-                        />
-                        {investmentFile && (
-                            <p className="text-sm text-gray-500 mt-2">
-                                Arquivo selecionado: {investmentFile.name}
-                            </p>
-                        )}
-                    </CardContent>
-                </Card>
-
                 <Button
                     onClick={handleSubmit}
                     className="w-full"
-                    disabled={!bankStatementFile || !creditCardFile || !investmentFile}
+                    disabled={!creditCardFile}
                 >
-                    Processar Arquivos
+                    Processar Arquivo PDF
                 </Button>
-            </div>
-
-            <div>
-              
             </div>
         </div>
          {editingTransaction && (

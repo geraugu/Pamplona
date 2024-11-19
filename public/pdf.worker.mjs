@@ -55885,7 +55885,7 @@ class MessageHandler {
         return startCapability.promise;
       },
       pull: controller => {
-        const pullCapability = withResolvers();
+        const pullCapability = withResolvers(); 
         this.streamControllers[streamId].pullCall = pullCapability;
         comObj.postMessage({
           sourceName,
