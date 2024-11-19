@@ -4,8 +4,7 @@ import React, { useState, ChangeEvent } from 'react'
 import { Button } from '@/app/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card'
 import { Input } from '@/app/components/ui/input'
-import  TransactionTable  from './components/TransactionTable'
-import { useUploadManager } from './components/useUploadManager'
+// import  TransactionTable  from './components/TransactionTable'
 import { Transacao, CategoriaKeys } from '../components/lib/interfaces'
 import { toast } from 'sonner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/app/components/ui/dialog'
@@ -18,73 +17,11 @@ export default function UploadInfoPage() {
     const [bankStatementFile, setBankStatementFile] = useState<File | null>(null)
     const [creditCardFile, setCreditCardFile] = useState<File | null>(null)
     const [investmentFile, setInvestmentFile] = useState<File | null>(null)
-    const [showOnlyUncategorized, setShowOnlyUncategorized] = useState<boolean>(true)
+    // const [showOnlyUncategorized, setShowOnlyUncategorized] = useState<boolean>(true)
     const [editingTransaction, setEditingTransaction] = useState<Transacao | null>(null)
    
 
-    const {
-        transactions,
-        // investments,
-        // error,
-        // saving,
-        // findMatchingCategory,
-        // processInvestmentCsv,
-        // saveTransactions,
-        // saveInvestments,
-        // resetState,
-        // setError,
-        editTransaction,
-        deleteTransaction,
-        changeTransactionCategory,
-        // setTransactions
-    } = useUploadManager()
 
-    // Filter transactions to show uncategorized first or all
-    const filteredTransactions = showOnlyUncategorized
-        ? transactions.filter(t =>
-            t.categoria === null ||
-            t.categoria === undefined ||
-            (t.categoria && (!t.subcategoria || t.subcategoria === null))
-        )
-        : transactions
-
-    const handleEditTransaction = (transaction: Transacao) => {
-        setEditingTransaction({ ...transaction })
-    }
-
-    const handleUpdateTransaction = () => {
-        if (editingTransaction) {
-          editTransaction(editingTransaction.id, editingTransaction)
-          setEditingTransaction(null)
-          toast.success('Transação atualizada com sucesso!')
-        }
-      }
-
-
-    const handleDeleteTransaction = (id: number) => {
-        deleteTransaction(id)
-        toast.success('Transação excluída com sucesso!')
-    }
-
-    const handleCategoryChange = (id: number, category: CategoriaKeys) => {
-        changeTransactionCategory(id, category)
-        toast.success('Categoria atualizada com sucesso!')
-
-        // If showing only uncategorized, toggle the filter to refresh the view
-        if (showOnlyUncategorized) {
-            setShowOnlyUncategorized(false)
-            setShowOnlyUncategorized(true)
-        }
-    }
-
-    const handleSubcategoryChange = (id: number, subcategory: string) => {
-        const transaction = transactions.find(t => t.id === id)
-        if (transaction && transaction.categoria) {
-          changeTransactionCategory(id, transaction.categoria, subcategory)
-          toast.success('Subcategoria atualizada com sucesso!')
-        }
-      }
-    
 
     const handleFileUpload = (type: 'bank' | 'credit' | 'investment', file: File) => {
         const allowedTypes = ['text/csv', 'application/vnd.ms-excel']
@@ -198,13 +135,7 @@ export default function UploadInfoPage() {
             </div>
 
             <div>
-                <TransactionTable
-                    transactions={filteredTransactions}
-                    onEdit={handleEditTransaction}
-                    onDelete={handleDeleteTransaction}
-                    onCategoryChange={handleCategoryChange}
-                    onSubcategoryChange={handleSubcategoryChange}
-                />
+              
             </div>
         </div>
          {editingTransaction && (
@@ -287,7 +218,7 @@ export default function UploadInfoPage() {
                       Cancelar
                     </Button>
                   </DialogClose>
-                  <Button onClick={handleUpdateTransaction}>
+                  <Button >
                     Salvar
                   </Button>
                 </DialogFooter>
