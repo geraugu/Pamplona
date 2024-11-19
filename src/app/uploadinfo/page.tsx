@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, ChangeEvent } from 'react'
+import React, { useState, ChangeEvent,useEffect } from 'react'
 import { Button } from '@/app/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card'
 import { Input } from '@/app/components/ui/input'
@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogC
 import { Label } from '@/app/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select'
 import categorias from '../../app/components/lib/categorias.json'
+import * as pdfjsLib from 'pdfjs-dist'
 
 
 export default function UploadInfoPage() {
@@ -20,7 +21,9 @@ export default function UploadInfoPage() {
     // const [showOnlyUncategorized, setShowOnlyUncategorized] = useState<boolean>(true)
     const [editingTransaction, setEditingTransaction] = useState<Transacao | null>(null)
    
-
+    useEffect(() => {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.mjs`
+      }, [])
 
 
     const handleFileUpload = (type: 'bank' | 'credit' | 'investment', file: File) => {
