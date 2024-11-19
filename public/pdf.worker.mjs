@@ -1841,6 +1841,14 @@ class ChunkedStream extends Stream {
     return [this];
   }
 }
+function withResolvers() {
+  let resolve, reject;
+  const promise = new Promise((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { promise, resolve, reject };
+}
 class ChunkedStreamManager {
   constructor(pdfNetworkStream, args) {
     this.length = args.length;
@@ -1855,7 +1863,7 @@ class ChunkedStreamManager {
     this._promisesByRequest = new Map();
     this.progressiveDataLength = 0;
     this.aborted = false;
-    this._loadedStreamCapability = Promise.withResolvers();
+    this._loadedStreamCapability = withResolvers();
   }
   sendRequest(begin, end) {
     const rangeReader = this.pdfNetworkStream.getRangeReader(begin, end);
@@ -1918,7 +1926,7 @@ class ChunkedStreamManager {
     if (chunksNeeded.size === 0) {
       return Promise.resolve();
     }
-    const capability = Promise.withResolvers();
+    const capability = withResolvers();
     this._promisesByRequest.set(requestId, capability);
     const chunksToRequest = [];
     for (const chunk of chunksNeeded) {
@@ -30926,7 +30934,7 @@ class PartialEvaluator {
     const {
       promise,
       resolve
-    } = Promise.withResolvers();
+    } = withResolvers();
     let preEvaluatedFont;
     try {
       preEvaluatedFont = this.preEvaluateFont(font);
@@ -55836,7 +55844,7 @@ class MessageHandler {
   }
   sendWithPromise(actionName, data, transfers) {
     const callbackId = this.callbackId++;
-    const capability = Promise.withResolvers();
+    const capability = withResolvers();
     this.callbackCapabilities[callbackId] = capability;
     try {
       this.comObj.postMessage({
@@ -55858,7 +55866,7 @@ class MessageHandler {
       comObj = this.comObj;
     return new ReadableStream({
       start: controller => {
-        const startCapability = Promise.withResolvers();
+        const startCapability = withResolvers();
         this.streamControllers[streamId] = {
           controller,
           startCall: startCapability,
@@ -55877,7 +55885,7 @@ class MessageHandler {
         return startCapability.promise;
       },
       pull: controller => {
-        const pullCapability = Promise.withResolvers();
+        const pullCapability = withResolvers();
         this.streamControllers[streamId].pullCall = pullCapability;
         comObj.postMessage({
           sourceName,
@@ -55890,7 +55898,7 @@ class MessageHandler {
       },
       cancel: reason => {
         assert(reason instanceof Error, "cancel must have a valid reason");
-        const cancelCapability = Promise.withResolvers();
+        const cancelCapability = withResolvers();
         this.streamControllers[streamId].cancelCall = cancelCapability;
         this.streamControllers[streamId].isClosed = true;
         comObj.postMessage({
@@ -55919,7 +55927,7 @@ class MessageHandler {
         const lastDesiredSize = this.desiredSize;
         this.desiredSize -= size;
         if (lastDesiredSize > 0 && this.desiredSize <= 0) {
-          this.sinkCapability = Promise.withResolvers();
+          this.sinkCapability = withResolvers();
           this.ready = this.sinkCapability.promise;
         }
         comObj.postMessage({
@@ -55957,7 +55965,7 @@ class MessageHandler {
           reason: wrapReason(reason)
         });
       },
-      sinkCapability: Promise.withResolvers(),
+      sinkCapability: withResolvers(),
       onPull: null,
       onCancel: null,
       isCancelled: false,
@@ -56236,7 +56244,7 @@ class WorkerTask {
   constructor(name) {
     this.name = name;
     this.terminated = false;
-    this._capability = Promise.withResolvers();
+    this._capability = withResolvers();
   }
   get finished() {
     return this._capability.promise;
@@ -56347,7 +56355,7 @@ class WorkerMessageHandler {
         password,
         rangeChunkSize
       };
-      const pdfManagerCapability = Promise.withResolvers();
+      const pdfManagerCapability = withResolvers();
       let newPdfManager;
       if (data) {
         try {
