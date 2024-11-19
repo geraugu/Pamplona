@@ -17,7 +17,7 @@ import { InvestmentUpload } from './InvestmentUpload'
 import { BankStatementUpload } from './BankStatementUpload'
 import { findMatchingCategory } from './utils/categoryUtils'
 
-// import TransactionTable from './TransactionTable'
+import TransactionTable from './TransactionTable'
 // import InvestmentTable from './InvestmentTable'
 import { Transacao, CategoriaKeys } from '../components/lib/interfaces'
 import categorias from '../components/lib/categorias.json'
@@ -274,13 +274,13 @@ export default function UploadPage() {
                     : `Mostrando todas as ${transactions.length} transações`}
                 </span>
               </div>
-              {/* <TransactionTable
+              <TransactionTable
                 transactions={filteredTransactions}
                 onEdit={handleEditTransaction}
                 onDelete={handleDeleteTransaction}
                 onCategoryChange={handleCategoryChange}
                 onSubcategoryChange={handleSubcategoryChange}
-              /> */}
+              />
               <div className="mt-4 flex justify-end">
                 <Button onClick={handleSaveTransactions} disabled={saving}>
                   {saving ? 'Salvando...' : 'Salvar Transações'}

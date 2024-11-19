@@ -12,7 +12,7 @@ export function UploadSelector({ onSelectUploadType }: UploadSelectorProps) {
       <Button 
         variant="outline" 
         onClick={() => onSelectUploadType('credit_card')}
-        className="h-40 flex flex-col items-center justify-center text-foreground hover:bg-accent hover:text-white"
+        className="h-40 flex flex-col items-center justify-center text-foreground hover:bg-secondary hover:text-white"
       >
         <svg 
           xmlns="http://www.w3.org/2000/svg" 
@@ -34,7 +34,7 @@ export function UploadSelector({ onSelectUploadType }: UploadSelectorProps) {
       <Button 
         variant="outline" 
         onClick={() => onSelectUploadType('investment')}
-        className="h-40 flex flex-col items-center justify-center text-foreground hover:bg-accent hover:text-white"
+        className="h-40 flex flex-col items-center justify-center text-foreground hover:bg-secondary hover:text-white"
       >
         <svg 
           xmlns="http://www.w3.org/2000/svg" 
@@ -55,7 +55,7 @@ export function UploadSelector({ onSelectUploadType }: UploadSelectorProps) {
       <Button 
         variant="outline" 
         onClick={() => onSelectUploadType('bank_statement')}
-        className="h-40 flex flex-col items-center justify-center text-foreground hover:bg-accent hover:text-white"
+        className="h-40 flex flex-col items-center justify-center text-foreground hover:bg-secondary hover:text-white"
       >
         <svg 
           xmlns="http://www.w3.org/2000/svg" 
