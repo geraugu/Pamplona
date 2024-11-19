@@ -10,12 +10,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogC
 import { Label } from '../components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
 import categorias from '../components/lib/categorias.json'
-import * as pdfjsLib from 'pdfjs-dist'
+
 
 export default function UploadInfoPage() {
     const [creditCardFile, setCreditCardFile] = useState<File | null>(null)
     const [editingTransaction, setEditingTransaction] = useState<Transacao | null>(null)
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.mjs`
+    
   
 
     const handleFileUpload = (file: File) => {
