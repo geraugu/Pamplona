@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, ChangeEvent, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
@@ -11,10 +11,12 @@ import { Label } from '../components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
 import categorias from '../components/lib/categorias.json'
 import * as pdfjsLib from 'pdfjs-dist'
+import { TextItem } from 'pdfjs-dist/types/src/display/api'
 
 export default function UploadInfoPage() {
     const [creditCardFile, setCreditCardFile] = useState<File | null>(null)
     const [editingTransaction, setEditingTransaction] = useState<Transacao | null>(null)
+   
     useEffect(() => {
         pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.js`
     }, [])
@@ -28,7 +30,10 @@ export default function UploadInfoPage() {
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i)
           const textContent = await page.getTextContent()
-          const pageText = textContent.items.map((item: any) => item.str).join(' ')
+          const pageText = textContent.items
+            .filter((item): item is TextItem => 'str' in item)
+            .map((item: TextItem) => item.str)
+            .join(' ')
           fullText += pageText + '\n'
         }
   
@@ -37,7 +42,7 @@ export default function UploadInfoPage() {
         // const extractedTransactions = await extractCreditCardTransactions(fullText, selectedMonth, selectedYear)
         // setTransactions(extractedTransactions)
         // return extractedTransactions
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Error processing PDF:", error)
         // setError(`Erro ao processar PDF: ${error.message}`)
         return []
@@ -76,7 +81,7 @@ export default function UploadInfoPage() {
                         <Input
                             type="file"
                             accept=".pdf"
-                            onChange={(e) => {
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                                 const file = e.target.files?.[0]
                                 if (file) handleFileUpload(file)
                             }}
@@ -109,7 +114,7 @@ export default function UploadInfoPage() {
                     <Label>Descrição</Label>
                     <Input 
                       value={editingTransaction.descricao} 
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => setEditingTransaction({
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditingTransaction({
                         ...editingTransaction, 
                         descricao: e.target.value
                       })}
@@ -120,7 +125,7 @@ export default function UploadInfoPage() {
                     <Input 
                       type="number" 
                       value={editingTransaction.valor} 
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => setEditingTransaction({
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditingTransaction({
                         ...editingTransaction, 
                         valor: parseFloat(e.target.value)
                       })}
