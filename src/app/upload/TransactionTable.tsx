@@ -63,7 +63,7 @@ export default function TransactionTable({
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione..." />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent  className="bg-white">
                     {Object.keys(categorias).map((categoria) => (
                       <SelectItem key={categoria} value={categoria}>
                         {categoria}
@@ -81,7 +81,7 @@ export default function TransactionTable({
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione..." />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent  className="bg-white">
                     {transaction.categoria &&
                       categorias[transaction.categoria].map((subcategoria: string) => (
                         <SelectItem key={subcategoria} value={subcategoria}>

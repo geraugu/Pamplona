@@ -375,7 +375,7 @@ export function TransactionsTab({
                   Nova Transação
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="bg-white">
                 <DialogHeader>
                   <DialogTitle>Nova Transação</DialogTitle>
                 </DialogHeader>
@@ -444,7 +444,7 @@ export function TransactionsTab({
                       <SelectTrigger className="col-span-3">
                         <SelectValue placeholder="Selecione a categoria" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white">
                         {availableCategories.map(category => (
                           <SelectItem key={category} value={category}>
                             {category}
@@ -468,7 +468,7 @@ export function TransactionsTab({
                       <SelectTrigger className="col-span-3">
                         <SelectValue placeholder="Selecione a subcategoria" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white">
                         {newTransactionSubcategories.map((subcategory: string) => (
                           <SelectItem key={subcategory} value={subcategory}>
                             {subcategory}
@@ -493,7 +493,7 @@ export function TransactionsTab({
                       <SelectTrigger className="col-span-3">
                         <SelectValue placeholder="Selecione a origem" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white">
                         <SelectItem value="conta_bancaria">Conta Bancária</SelectItem>
                         <SelectItem value="cartao_credito">Cartão de Crédito</SelectItem>
                       </SelectContent>
@@ -534,7 +534,7 @@ export function TransactionsTab({
                     Excluir Transações do Mês
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent>
+                <AlertDialogContent  className="bg-white">
                   <AlertDialogHeader>
                     <AlertDialogTitle>Tem certeza que deseja excluir todas as transações?</AlertDialogTitle>
                     <AlertDialogDescription>
@@ -561,7 +561,7 @@ export function TransactionsTab({
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Selecione o ano" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white">
               <SelectItem value="all">Todos os Anos</SelectItem>
               {years.map(year => (
                 <SelectItem key={year} value={year}>{year}</SelectItem>
@@ -577,7 +577,7 @@ export function TransactionsTab({
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Selecione o mês" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white">
               <SelectItem value="all">Todos os Meses</SelectItem>
               {months.map(month => (
                 <SelectItem key={month} value={month}>
@@ -600,7 +600,7 @@ export function TransactionsTab({
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Categoria" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white">
               <SelectItem value="all">Todas Cat.</SelectItem>
               {availableCategories.map(category => (
                 <SelectItem key={category} value={category}>{category}</SelectItem>
@@ -617,7 +617,7 @@ export function TransactionsTab({
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Subcategoria" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white">
               <SelectItem value="all">Todas Subc.</SelectItem>
               {availableSubcategories.map((subcategory: string) => (
                 <SelectItem key={subcategory} value={subcategory}>
@@ -637,7 +637,7 @@ export function TransactionsTab({
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Origem" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white">
               <SelectItem value="all">Todas Fontes</SelectItem>
               <SelectItem value="cartao_credito">Cartão de Crédito</SelectItem>
               <SelectItem value="conta_bancaria">Conta Bancária</SelectItem>
@@ -756,7 +756,7 @@ export function TransactionsTab({
                         <PencilIcon className="h-4 w-4" />
                       </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent className="bg-white">
                       <DialogHeader>
                         <DialogTitle>Editar Transação</DialogTitle>
                       </DialogHeader>
@@ -804,7 +804,7 @@ export function TransactionsTab({
                         <SelectTrigger className="col-span-3">
                           <SelectValue placeholder="Selecione a categoria" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-white">
                           {availableCategories.map(category => (
                             <SelectItem key={category} value={category}>
                               {category}
@@ -827,7 +827,7 @@ export function TransactionsTab({
                             <SelectTrigger className="col-span-3">
                               <SelectValue placeholder="Selecione a subcategoria" />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="bg-white">
                               {editingTransactionSubcategories.map((subcategory: string) => (
                                 <SelectItem key={subcategory} value={subcategory}>
                                   {subcategory}
@@ -848,7 +848,7 @@ export function TransactionsTab({
                         <SelectTrigger className="col-span-3">
             <SelectValue placeholder="Parcela (opcional)" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white">
             <SelectItem value="">Sem Parcela</SelectItem>
             {/* Add common parcel options or allow free input */}
                     {/* <SelectItem value="1/2">1/2</SelectItem>
@@ -883,7 +883,7 @@ export function TransactionsTab({
                         <TrashIcon className="h-4 w-4 text-red-500" />
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent>
+                    <AlertDialogContent className="bg-white">
                       <AlertDialogHeader>
                         <AlertDialogTitle>Tem certeza que deseja excluir esta transação?</AlertDialogTitle>
                         <AlertDialogDescription>

@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Transacao, CategoriaKeys } from '../../components/lib/interfaces'
-import * as pdfjsLib from 'pdfjs-dist'
+import * as pdfjsLib from 'pdfjs-dist';
 import { findMatchingCategory } from '../utils/categoryUtils'
 import { TextItem } from 'pdfjs-dist/types/src/display/api'
+
 
 interface UseCreditCardUploadProps {
   categoryMapping: {[key: string]: { categoria: CategoriaKeys; subcategoria: string; count: number }}
@@ -85,6 +86,7 @@ export function useCreditCardUpload({
     return transacoesExtraidas
   }
 
+  
   const processCreditCardPdf = async (file: File, selectedMonth: number, selectedYear: number) => {
     try {
       const arrayBuffer = await file.arrayBuffer()

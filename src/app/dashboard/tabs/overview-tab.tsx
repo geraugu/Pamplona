@@ -42,7 +42,11 @@ export function OverviewTab({
   // Safe parsing of parcela string
   const safeParseInstallment = (parcela: string | null | undefined) => {
     if (!parcela) return { current: 0, total: 0 };
-    const parts = parcela.split('/');
+     // Remover o prefixo "Parcela" e possíveis espaços em branco
+  const cleaned = parcela.replace(/Parcela\s*/i, '').trim();
+  
+  // Dividir pelo separador "/"
+  const parts = cleaned.split('/');
     const current = parts.length > 0 ? parseInt(parts[0], 10) : 0;
     const total = parts.length > 1 ? parseInt(parts[1], 10) : 0;
     return { 
@@ -53,6 +57,7 @@ export function OverviewTab({
 
   // Find installment transactions from the last available month
   const installmentTransactions = transactions.filter(transaction => {
+    console.log(lastAvailableMonth,transaction.mesReferencia )
     // Check if transaction is from the last available month and year
     const isLastMonth = transaction.mesReferencia === lastAvailableMonth && 
                         transaction.anoReferencia === lastAvailableYear

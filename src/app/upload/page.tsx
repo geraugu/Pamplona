@@ -33,7 +33,9 @@ export default function UploadPage() {
 
   // Configure PDF.js worker
   useEffect(() => {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.js`
+    
+
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.mjs`
   }, [])
 
   const {
