@@ -18,11 +18,11 @@ import { findMatchingCategory } from './utils/categoryUtils'
 
 import TransactionTable from './TransactionTable'
 import InvestmentTable from './InvestmentTable'
-import { Transacao,  CategoriaKeys } from '../components/lib/interfaces'
+import { Transacao, CategoriaKeys } from '../components/lib/interfaces'
 import categorias from '../components/lib/categorias.json'
 
 // Import PDF.js
-import * as pdfjsLib from 'pdfjs-dist'
+//import * as pdfjsLib from 'pdfjs-dist'
 
 export default function UploadPage() {
   const [uploadType, setUploadType] = useState<'none' | 'credit_card' | 'investment' | 'bank_statement'>('none')
@@ -33,9 +33,7 @@ export default function UploadPage() {
 
   // Configure PDF.js worker
   useEffect(() => {
-    
-
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.mjs`
+   // pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.mjs`
   }, [])
 
   const {
@@ -73,7 +71,7 @@ export default function UploadPage() {
           mes_referencia: selectedMonth,
           ano_referencia: selectedYear
         }))
-        
+
         // Directly set the transactions
         setTransactions(updatedTransactions)
       }
@@ -130,7 +128,7 @@ export default function UploadPage() {
   }
 
   const handleEditTransaction = (transaction: Transacao) => {
-    setEditingTransaction({...transaction})
+    setEditingTransaction({ ...transaction })
   }
 
   const handleUpdateTransaction = () => {
@@ -149,7 +147,7 @@ export default function UploadPage() {
   const handleCategoryChange = (id: number, category: CategoriaKeys) => {
     changeTransactionCategory(id, category)
     toast.success('Categoria atualizada com sucesso!')
-    
+
     // If showing only uncategorized, toggle the filter to refresh the view
     if (showOnlyUncategorized) {
       setShowOnlyUncategorized(false)
@@ -166,12 +164,12 @@ export default function UploadPage() {
   }
 
   // Filter transactions to show uncategorized first or all
-  const filteredTransactions = showOnlyUncategorized 
-    ? transactions.filter(t => 
-        t.categoria === null || 
-        t.categoria === undefined || 
-        (t.categoria && (!t.subcategoria || t.subcategoria === null))
-      )
+  const filteredTransactions = showOnlyUncategorized
+    ? transactions.filter(t =>
+      t.categoria === null ||
+      t.categoria === undefined ||
+      (t.categoria && (!t.subcategoria || t.subcategoria === null))
+    )
     : transactions
 
   // Wrapper for findMatchingCategory to ensure non-null return
@@ -195,7 +193,7 @@ export default function UploadPage() {
           )}
 
           {uploadType === 'credit_card' && (
-            <CreditCardUpload 
+            <CreditCardUpload
               onBack={() => setUploadType('none')}
               onExtractTransactions={handleCreditCardExtract}
               findMatchingCategory={safeFindMatchingCategory}
@@ -206,14 +204,14 @@ export default function UploadPage() {
           )}
 
           {uploadType === 'investment' && (
-            <InvestmentUpload 
+            <InvestmentUpload
               onBack={() => setUploadType('none')}
               onUploadInvestments={handleInvestmentUpload}
             />
           )}
 
           {uploadType === 'bank_statement' && (
-            <BankStatementUpload 
+            <BankStatementUpload
               onBack={() => setUploadType('none')}
               onExtractTransactions={handleBankStatementExtract}
               findMatchingCategory={safeFindMatchingCategory}
@@ -227,23 +225,23 @@ export default function UploadPage() {
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
               <strong className="font-bold">Erro: </strong>
               <span className="block sm:inline">{error}</span>
-              <span 
+              <span
                 className="absolute top-0 bottom-0 right-0 px-4 py-3 cursor-pointer"
                 onClick={() => setError(null)}
               >
                 <svg className="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                   <title>Close</title>
-                  <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.03a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
+                  <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.03a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" />
                 </svg>
               </span>
             </div>
           )}
-          
+
           {(transactions.length > 0 || investments.length > 0) && (
             <div className="mb-4">
               <Label>Mês de Referência</Label>
-              <Select 
-                value={selectedMonth ? selectedMonth.toString() : undefined} 
+              <Select
+                value={selectedMonth ? selectedMonth.toString() : undefined}
                 onValueChange={(value: string) => setSelectedMonth(parseInt(value, 10))}
               >
                 <SelectTrigger>
@@ -259,24 +257,24 @@ export default function UploadPage() {
               </Select>
             </div>
           )}
-          
+
           {transactions.length > 0 && (
             <>
               <div className="flex items-center space-x-4 mb-4">
-                <Button 
+                <Button
                   variant={showOnlyUncategorized ? "default" : "outline"}
                   onClick={() => setShowOnlyUncategorized(!showOnlyUncategorized)}
                 >
                   {showOnlyUncategorized ? "Mostrar Todas" : "Mostrar Não Categorizadas"}
                 </Button>
                 <span className="text-sm text-gray-600">
-                  {showOnlyUncategorized 
-                    ? `Mostrando ${filteredTransactions.length} transações não categorizadas` 
+                  {showOnlyUncategorized
+                    ? `Mostrando ${filteredTransactions.length} transações não categorizadas`
                     : `Mostrando todas as ${transactions.length} transações`}
                 </span>
               </div>
-              <TransactionTable 
-                transactions={filteredTransactions} 
+              <TransactionTable
+                transactions={filteredTransactions}
                 onEdit={handleEditTransaction}
                 onDelete={handleDeleteTransaction}
                 onCategoryChange={handleCategoryChange}
@@ -289,7 +287,7 @@ export default function UploadPage() {
               </div>
             </>
           )}
-          
+
           {investments.length > 0 && (
             <>
               <h2 className="mt-8 text-lg font-medium">Investimentos</h2>
@@ -313,21 +311,21 @@ export default function UploadPage() {
             <div className="space-y-4">
               <div>
                 <Label>Descrição</Label>
-                <Input 
-                  value={editingTransaction.descricao} 
+                <Input
+                  value={editingTransaction.descricao}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setEditingTransaction({
-                    ...editingTransaction, 
+                    ...editingTransaction,
                     descricao: e.target.value
                   })}
                 />
               </div>
               <div>
                 <Label>Valor</Label>
-                <Input 
-                  type="number" 
-                  value={editingTransaction.valor} 
+                <Input
+                  type="number"
+                  value={editingTransaction.valor}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setEditingTransaction({
-                    ...editingTransaction, 
+                    ...editingTransaction,
                     valor: parseFloat(e.target.value)
                   })}
                 />

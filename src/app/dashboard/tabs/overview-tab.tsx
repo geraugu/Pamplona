@@ -57,7 +57,6 @@ export function OverviewTab({
 
   // Find installment transactions from the last available month
   const installmentTransactions = transactions.filter(transaction => {
-    console.log(lastAvailableMonth,transaction.mesReferencia )
     // Check if transaction is from the last available month and year
     const isLastMonth = transaction.mesReferencia === lastAvailableMonth && 
                         transaction.anoReferencia === lastAvailableYear
