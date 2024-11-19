@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, ChangeEvent } from 'react'
+import React, { useState, ChangeEvent, useEffect } from 'react'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
@@ -10,13 +10,39 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogC
 import { Label } from '../components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
 import categorias from '../components/lib/categorias.json'
-
+import * as pdfjsLib from 'pdfjs-dist'
 
 export default function UploadInfoPage() {
     const [creditCardFile, setCreditCardFile] = useState<File | null>(null)
     const [editingTransaction, setEditingTransaction] = useState<Transacao | null>(null)
-    
+    useEffect(() => {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.js`
+    }, [])
+
+    const processCreditCardPdf = async (file: File) => {
+      try {
+        const arrayBuffer = await file.arrayBuffer()
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+        let fullText = ''
   
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i)
+          const textContent = await page.getTextContent()
+          const pageText = textContent.items.map((item: any) => item.str).join(' ')
+          fullText += pageText + '\n'
+        }
+  
+        console.log(fullText)
+  
+        // const extractedTransactions = await extractCreditCardTransactions(fullText, selectedMonth, selectedYear)
+        // setTransactions(extractedTransactions)
+        // return extractedTransactions
+      } catch (error: any) {
+        console.error("Error processing PDF:", error)
+        // setError(`Erro ao processar PDF: ${error.message}`)
+        return []
+      }
+    }
 
     const handleFileUpload = (file: File) => {
         if (file.type !== 'application/pdf') {
@@ -33,8 +59,7 @@ export default function UploadInfoPage() {
             return
         }
 
-        // TODO: Implement actual PDF file upload logic for credit card
-        toast.info('Processando arquivo PDF...')
+        processCreditCardPdf(creditCardFile)
     }
 
     return (
