@@ -800,21 +800,19 @@ export function TransactionsTab({
                             onValueChange={(value) => setEditingTransaction(prev => 
                               prev ? {...prev, categoria: value, subcategoria: ''} : null
                             )}
-        >
-          <SelectTrigger className="col-span-3">
-            <SelectValue placeholder="Parcela (opcional)" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="">Sem Parcela</SelectItem>
-            {/* Add common parcel options or allow free input */}
-            <SelectItem value="1/2">1/2</SelectItem>
-            <SelectItem value="1/3">1/3</SelectItem>
-            <SelectItem value="1/4">1/4</SelectItem>
-            <SelectItem value="1/6">1/6</SelectItem>
-            <SelectItem value="1/12">1/12</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+        > 
+                        <SelectTrigger className="col-span-3">
+                          <SelectValue placeholder="Selecione a categoria" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableCategories.map(category => (
+                            <SelectItem key={category} value={category}>
+                              {category}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
                         {/* Subcategoria */}
                         <div className="grid grid-cols-4 items-center gap-4">
@@ -838,7 +836,29 @@ export function TransactionsTab({
                             </SelectContent>
                           </Select>
                         </div>
-
+                        {/* Parcela */}
+                    {/* <div className="grid grid-cols-4 items-center gap-4">
+                        <Select
+                      value={editingTransaction?.parcela || ""} 
+                      onValueChange={(value) => setNewTransaction(prev => ({
+                        ...prev,
+                        parcela: value || null
+                      }))}
+                    >
+                        <SelectTrigger className="col-span-3">
+            <SelectValue placeholder="Parcela (opcional)" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">Sem Parcela</SelectItem>
+            {/* Add common parcel options or allow free input */}
+                    {/* <SelectItem value="1/2">1/2</SelectItem>
+            <SelectItem value="1/3">1/3</SelectItem>
+            <SelectItem value="1/4">1/4</SelectItem>
+            <SelectItem value="1/6">1/6</SelectItem>
+            <SelectItem value="1/12">1/12</SelectItem>
+          </SelectContent>
+          </Select>
+          </div> */}
                         <DialogFooter>
                           <Button 
                             type="submit"
