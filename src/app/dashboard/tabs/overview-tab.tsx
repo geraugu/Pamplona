@@ -41,14 +41,23 @@ export function OverviewTab({
 
   // Safe parsing of parcela string
   const safeParseInstallment = (parcela: string | null | undefined) => {
+    //console.log(parcela)
     if (!parcela) return { current: 0, total: 0 };
-     // Remover o prefixo "Parcela" e possíveis espaços em branco
-  const cleaned = parcela.replace(/Parcela\s*/i, '').trim();
-  
-  // Dividir pelo separador "/"
-  const parts = cleaned.split('/');
+    
+    // Remove any whitespace and convert to lowercase for consistent parsing
+    const cleaned = parcela.trim().toLowerCase();
+    
+    // Remove "parcela" prefix if present
+    const parcelaRemoved = cleaned.replace(/^parcela\s*/, '');
+    
+    // Split by "/" or possible variations
+    const parts = parcelaRemoved.split(/[/\s]+/);
+    
+    // Try to parse current and total installments
+    
     const current = parts.length > 0 ? parseInt(parts[0], 10) : 0;
     const total = parts.length > 1 ? parseInt(parts[1], 10) : 0;
+    
     return { 
       current: isNaN(current) ? 0 : current, 
       total: isNaN(total) ? 0 : total 
@@ -56,10 +65,10 @@ export function OverviewTab({
   };
 
   // Find installment transactions from the last available month
-  const installmentTransactions = transactions.filter(transaction => {
+  const lastMonthInstallmentTransactions = transactions.filter(transaction => {
     // Check if transaction is from the last available month and year
     const isLastMonth = transaction.mesReferencia === lastAvailableMonth && 
-                        transaction.anoReferencia === lastAvailableYear
+                        transaction.anoReferencia === lastAvailableYear;
 
     // Check if transaction has parcela information and is not fully paid
     if (!isLastMonth || !transaction.parcela) return false;
@@ -68,20 +77,30 @@ export function OverviewTab({
     const { current, total } = safeParseInstallment(transaction.parcela);
     
     // Keep only transactions that are not fully paid
-    return current > 0 && total > 0 && current < total;
+    return current > 0 && total > 0 && current <= total;
   });
 
   // Calculate total value of installment transactions
-  const totalInstallmentValue = installmentTransactions.reduce((acc, transaction) => 
+  const totalInstallmentValue = lastMonthInstallmentTransactions.reduce((acc, transaction) => 
     acc + Math.abs(transaction.valor), 0);
 
-  // Calculate total value of penultimate installment transactions
-  const penultimateInstallmentTransactions = installmentTransactions.filter(transaction => {
+  // Find penultimate installment transactions
+  const penultimateInstallmentTransactions = lastMonthInstallmentTransactions.filter(transaction => {
     const { current, total } = safeParseInstallment(transaction.parcela);
     return current === total - 1;
   });
 
+  // Find last installment transactions
+  const lastInstallmentTransactions = lastMonthInstallmentTransactions.filter(transaction => {
+    //console.log(transaction.parcela)
+    const { current, total } = safeParseInstallment(transaction.parcela);
+    return current === total;
+  });
+
   const totalPenultimateInstallmentValue = penultimateInstallmentTransactions.reduce((acc, transaction) => 
+    acc + Math.abs(transaction.valor), 0);
+
+  const totalLastInstallmentValue = lastInstallmentTransactions.reduce((acc, transaction) => 
     acc + Math.abs(transaction.valor), 0);
 
   return (
@@ -191,7 +210,7 @@ export function OverviewTab({
             <CardTitle>Transações Parceladas</CardTitle>
           </CardHeader>
           <CardContent>
-            {installmentTransactions.length > 0 ? (
+            {lastMonthInstallmentTransactions.length > 0 ? (
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -201,7 +220,7 @@ export function OverviewTab({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {installmentTransactions.map((transaction, index) => {
+                  {lastMonthInstallmentTransactions.map((transaction: Transaction, index: number) => {
                     // Safe parsing of installment
                     const { current, total } = safeParseInstallment(transaction.parcela);
                     const isPenultimateParcela = current === total - 1;
@@ -235,6 +254,56 @@ export function OverviewTab({
               </Table>
             ) : (
               <p className="text-muted-foreground">Nenhuma transação parcelada encontrada.</p>
+            )}
+          </CardContent>
+        </Card>
+        <Card className="col-span-7">
+          <CardHeader>
+            <CardTitle>Últimas Parcelas ({lastAvailableMonth}/{lastAvailableYear})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {(lastInstallmentTransactions.length > 0) ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Descrição</TableHead>
+                    <TableHead>Valor</TableHead>
+                    <TableHead>Parcelas</TableHead>
+                    <TableHead>Tipo</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {lastInstallmentTransactions.map((transaction: Transaction, index: number) => {
+                    const { current, total } = safeParseInstallment(transaction.parcela);
+                    const isLastParcela = current === total;
+
+                    return (
+                      <TableRow 
+                        key={index} 
+                        className={isLastParcela ? 'bg-red-100 hover:bg-red-200' : 'bg-green-100 hover:bg-green-200'}
+                      >
+                        <TableCell>{transaction.descricao}</TableCell>
+                        <TableCell>{formatCurrency(Math.abs(transaction.valor))}</TableCell>
+                        <TableCell>{transaction.parcela || 'N/A'}</TableCell>
+                        <TableCell>
+                          {isLastParcela ? 'Última Parcela' : 'Penúltima Parcela'}
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+                <TableFooter>
+                  {lastInstallmentTransactions.length > 0 && (
+                    <TableRow>
+                      <TableCell colSpan={1} className="font-bold">Total Últimas Parcelas</TableCell>
+                      <TableCell className="font-bold">{formatCurrency(totalLastInstallmentValue)}</TableCell>
+                      <TableCell colSpan={2}></TableCell>
+                    </TableRow>
+                  )}
+                </TableFooter>
+              </Table>
+            ) : (
+              <p className="text-muted-foreground">Nenhuma transação na última ou penúltima parcela encontrada.</p>
             )}
           </CardContent>
         </Card>

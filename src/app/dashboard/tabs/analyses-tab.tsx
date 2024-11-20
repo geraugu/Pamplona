@@ -201,7 +201,7 @@ export function AnalysesTab({ transactions }: AnalysesTabProps) {
               <SelectTrigger>
                 <SelectValue placeholder="Selecione o período" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent   className="bg-white">
                 <SelectItem value="6months">Últimos 6 meses</SelectItem>
                 <SelectItem value="12months">Últimos 12 meses</SelectItem>
                 <SelectItem value="currentYear">Ano corrente</SelectItem>
@@ -214,7 +214,7 @@ export function AnalysesTab({ transactions }: AnalysesTabProps) {
               <SelectTrigger>
                 <SelectValue placeholder="Selecione a origem" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent  className="bg-white">
                 <SelectItem value="all">Todas</SelectItem>
                 <SelectItem value="conta_bancaria">Conta Bancária</SelectItem>
                 <SelectItem value="cartao_credito">Cartão de Crédito</SelectItem>
@@ -253,7 +253,7 @@ export function AnalysesTab({ transactions }: AnalysesTabProps) {
               <SelectTrigger>
                 <SelectValue placeholder="Selecione o período" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent  className="bg-white">
                 <SelectItem value="6months">Últimos 6 meses</SelectItem>
                 <SelectItem value="12months">Últimos 12 meses</SelectItem>
                 <SelectItem value="currentYear">Ano corrente</SelectItem>
@@ -292,7 +292,7 @@ export function AnalysesTab({ transactions }: AnalysesTabProps) {
               <SelectTrigger>
                 <SelectValue placeholder="Selecione o período" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent  className="bg-white">
                 <SelectItem value="6months">Últimos 6 meses</SelectItem>
                 <SelectItem value="12months">Últimos 12 meses</SelectItem>
                 <SelectItem value="currentYear">Ano corrente</SelectItem>
@@ -305,7 +305,7 @@ export function AnalysesTab({ transactions }: AnalysesTabProps) {
               <SelectTrigger>
                 <SelectValue placeholder="Selecione a categoria" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent  className="bg-white">
                 <SelectItem value="all">Todas</SelectItem>
                 {uniqueCategories.map(cat => (
                   <SelectItem key={cat} value={cat}>{cat}</SelectItem>
@@ -320,7 +320,7 @@ export function AnalysesTab({ transactions }: AnalysesTabProps) {
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione a subcategoria" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent  className="bg-white">
                   <SelectItem value="all">Todas</SelectItem>
                   {uniqueSubcategories.map(subcat => (
                     <SelectItem key={subcat} value={subcat}>{subcat}</SelectItem>

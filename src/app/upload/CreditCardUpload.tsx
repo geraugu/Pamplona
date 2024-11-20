@@ -5,7 +5,7 @@ import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
 import { Transacao, CategoriaKeys } from '../components/lib/interfaces'
-import { useCreditCardUpload } from './hooks/useCreditCardUpload'
+// import { useCreditCardUpload } from './hooks/useCreditCardUpload'
 
 interface CreditCardUploadProps {
   onBack: () => void
@@ -19,21 +19,21 @@ interface CreditCardUploadProps {
 
 export function CreditCardUpload({ 
   onBack, 
-  onExtractTransactions,
-  categoryMapping,
-  recentTransactions,
-  onUpdateCategoryMapping
+  // onExtractTransactions,
+  // categoryMapping,
+  // recentTransactions,
+  // onUpdateCategoryMapping
 }: CreditCardUploadProps) {
   const [file, setFile] = useState<File | null>(null)
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null)
   const [selectedYear] = useState<number>(new Date().getFullYear())
   const [error, setError] = useState<string | null>(null)
 
-  const creditCardUpload = useCreditCardUpload({
-    categoryMapping,
-    recentTransactions,
-    onUpdateCategoryMapping
-  })
+  // const creditCardUpload = useCreditCardUpload({
+  //   categoryMapping,
+  //   recentTransactions,
+  //   onUpdateCategoryMapping
+  // })
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {

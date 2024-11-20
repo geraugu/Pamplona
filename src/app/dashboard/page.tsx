@@ -11,7 +11,7 @@ import { OverviewTab } from "./tabs/overview-tab"
 import { TransactionsTab } from "./tabs/transactions-tab"
 import Link from "next/link"
 // import { InvestmentsTab } from "./tabs/investments-tab"
-// import { AnalysesTab } from "./tabs/analyses-tab"
+import { AnalysesTab } from "./tabs/analyses-tab"
 
 export default function DashboardPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -198,7 +198,7 @@ export default function DashboardPage() {
             {/* <InvestmentsTab /> */}
           </TabsContent>
           <TabsContent value="analyses">
-            {/* <AnalysesTab transactions={transactions} /> */}
+            <AnalysesTab transactions={transactions} />
           </TabsContent>
         </Tabs>
       </div>
