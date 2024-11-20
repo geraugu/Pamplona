@@ -49,17 +49,17 @@ export function CreditCardUpload({
       return
     }
 
-    try {
-      const extractedTransactions = await creditCardUpload.processCreditCardPdf(file, selectedMonth, selectedYear)
-      if (extractedTransactions.length === 0) {
-        setError('Nenhuma transação encontrada no arquivo PDF.')
-        return
-      }
-      onExtractTransactions(extractedTransactions)
-    } catch (error: unknown) {
-      console.error("Error processing PDF:", error)
-      setError(`Erro ao processar PDF: ${error instanceof Error ? error.message : 'Erro desconhecido'}`)
-    }
+    // try {
+    //   const extractedTransactions = await creditCardUpload.processCreditCardPdf(file, selectedMonth, selectedYear)
+    //   if (extractedTransactions.length === 0) {
+    //     setError('Nenhuma transação encontrada no arquivo PDF.')
+    //     return
+    //   }
+    //   onExtractTransactions(extractedTransactions)
+    // } catch (error: unknown) {
+    //   console.error("Error processing PDF:", error)
+    //   setError(`Erro ao processar PDF: ${error instanceof Error ? error.message : 'Erro desconhecido'}`)
+    // }
   }
 
   return (

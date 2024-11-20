@@ -1,5 +1,6 @@
 "use client"
 
+// import { useState, ChangeEvent, useEffect } from 'react'
 import { useState, ChangeEvent } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button'
@@ -21,6 +22,8 @@ import InvestmentTable from './InvestmentTable'
 import { Transacao,  CategoriaKeys } from '../components/lib/interfaces'
 import categorias from '../components/lib/categorias.json'
 
+// Import PDF.js
+// import * as pdfjsLib from 'pdfjs-dist'
 
 export default function UploadPage() {
   const [uploadType, setUploadType] = useState<'none' | 'credit_card' | 'investment' | 'bank_statement'>('none')
@@ -28,6 +31,11 @@ export default function UploadPage() {
   const [selectedYear] = useState<number>(new Date().getFullYear())
   const [editingTransaction, setEditingTransaction] = useState<Transacao | null>(null)
   const [showOnlyUncategorized, setShowOnlyUncategorized] = useState<boolean>(true)
+
+  // Configure PDF.js worker
+//   useEffect(() => {
+//     pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.js`
+//   }, [])
 
   const {
     transactions,
