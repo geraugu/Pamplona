@@ -228,12 +228,12 @@ export function useUploadManager() {
     return newTransactions
   }
 
-  const processCreditCardPdf = async (file: File, selectedMonth: number, selectedYear: number) => {
-    const newTransactions = await creditCardUpload.processCreditCardPdf(file, selectedMonth, selectedYear)
-    setTransactions(newTransactions)
-    if (creditCardUpload.error) setError(creditCardUpload.error)
-    return newTransactions
-  }
+  // const processCreditCardPdf = async (file: File, selectedMonth: number, selectedYear: number) => {
+    // const newTransactions = await creditCardUpload.processCreditCardPdf(file, selectedMonth, selectedYear)
+    // setTransactions(newTransactions)
+    // if (creditCardUpload.error) setError(creditCardUpload.error)
+    // return newTransactions
+  // }
 
   const processInvestmentCsv = async (file: File, investmentDate: string) => {
     const newInvestments = await investmentUpload.processInvestmentCsv(file, investmentDate)
@@ -247,7 +247,7 @@ export function useUploadManager() {
     investments,
     error,
     saving,
-    processCreditCardPdf,
+    // processCreditCardPdf,
     processBankCsv,
     processInvestmentCsv,
     saveTransactions,
