@@ -56,7 +56,7 @@ export default function Home() {
                       Acessar Dashboard
                     </Link>
                     <Link 
-                      href="/uploadinfo" 
+                      href="/upload" 
                       className="w-full px-4 py-2 bg-secondary text-white rounded-md hover:bg-secondary-600 transition-colors text-center font-semibold"
                     >
                       Carregar Arquivos

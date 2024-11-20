@@ -1,9 +1,9 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
 import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
-import { Button } from "../../components/ui/button"
-import categorias from '../../components/lib/categorias.json'
-import { Transacao, CategoriaKeys } from '../../components/lib/interfaces'
+import { Button } from "../components/ui/button"
+import categorias from '../components/lib/categorias.json'
+import { Transacao, CategoriaKeys } from '../components/lib/interfaces'
 
 interface TransactionTableProps {
   transactions: Transacao[]
@@ -63,7 +63,7 @@ export default function TransactionTable({
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione..." />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent  className="bg-white">
                     {Object.keys(categorias).map((categoria) => (
                       <SelectItem key={categoria} value={categoria}>
                         {categoria}
@@ -81,7 +81,7 @@ export default function TransactionTable({
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione..." />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent  className="bg-white">
                     {transaction.categoria &&
                       categorias[transaction.categoria].map((subcategoria: string) => (
                         <SelectItem key={subcategoria} value={subcategoria}>
