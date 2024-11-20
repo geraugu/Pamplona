@@ -5,7 +5,7 @@ import { db, getTransactions } from '../services/firebase'
 import { collection, addDoc, Timestamp, serverTimestamp } from 'firebase/firestore'
 import { getInitialCategoryMapping } from './utils/categoryUtils'
 import { useBankUpload } from './hooks/useBankUpload'
-import { useCreditCardUpload } from './hooks/useCreditCardUpload'
+// import { useCreditCardUpload } from './hooks/useCreditCardUpload'
 import { useInvestmentUpload } from './hooks/useInvestmentUpload'
 
 export function useUploadManager() {
@@ -68,11 +68,11 @@ export function useUploadManager() {
     onUpdateCategoryMapping: updateCategoryMapping
   })
 
-  const creditCardUpload = useCreditCardUpload({
-    categoryMapping,
-    recentTransactions: transactionsReferencia,
-    onUpdateCategoryMapping: updateCategoryMapping
-  })
+  // const creditCardUpload = useCreditCardUpload({
+  //   categoryMapping,
+  //   recentTransactions: transactionsReferencia,
+  //   onUpdateCategoryMapping: updateCategoryMapping
+  // })
 
   const investmentUpload = useInvestmentUpload()
 
