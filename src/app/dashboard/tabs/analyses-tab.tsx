@@ -2,13 +2,18 @@
 
 import React, { useState, useMemo } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, ReferenceLine } from 'recharts'
 import { BarChart, Bar } from 'recharts'
 import { Transaction } from "../../components/lib/interfaces"
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card"
 
 interface AnalysesTabProps {
   transactions: Transaction[]
+}
+
+interface CategoryExpense {
+  month: string;
+  [key: string]: string | number; // Allow string keys with string or number values
 }
 
 export function AnalysesTab({ transactions }: AnalysesTabProps) {
@@ -86,6 +91,70 @@ export function AnalysesTab({ transactions }: AnalysesTabProps) {
     }, 0)
   }, [lineFilteredTransactions])
 
+  // Line Chart Expenses by Category/Subcategory
+  const categoryExpenses = useMemo<CategoryExpense[]>(() => {
+    const expensesByMonthAndCategory: { [key: string]: { [key: string]: number } } = {}
+
+    lineFilteredTransactions.forEach(transaction => {
+      const monthKey = `${monthNames[transaction.mesReferencia - 1]}/${transaction.anoReferencia}`
+      const categoryKey = selectedSubcategory !== 'all' 
+        ? transaction.subcategoria 
+        : (selectedCategory !== 'all' ? transaction.categoria : transaction.categoria)
+
+      if (!expensesByMonthAndCategory[monthKey]) {
+        expensesByMonthAndCategory[monthKey] = {}
+      }
+
+      if (!expensesByMonthAndCategory[monthKey][categoryKey]) {
+        expensesByMonthAndCategory[monthKey][categoryKey] = 0
+      }
+
+      expensesByMonthAndCategory[monthKey][categoryKey] += Math.abs(transaction.valor)
+    })
+
+    // Transform data for line chart
+    const transformedData = Object.entries(expensesByMonthAndCategory)
+      .map(([month, categories]) => ({
+        month,
+        ...categories
+      }))
+      .sort((a, b) => {
+        const [aMonth, aYear] = a.month.split('/')
+        const [bMonth, bYear] = b.month.split('/')
+        const monthOrder = monthNames
+        return (parseInt(aYear) - parseInt(bYear)) || 
+               (monthOrder.indexOf(aMonth) - monthOrder.indexOf(bMonth))
+      })
+
+    return transformedData
+  }, [lineFilteredTransactions, selectedCategory, selectedSubcategory])
+
+  // Calculate average expenses for selected category/subcategory
+  const averageCategoryExpenses = useMemo(() => {
+    const monthCount = categoryExpenses.length
+    return monthCount > 0 ? totalCategoryExpenses / monthCount : 0
+  }, [categoryExpenses, totalCategoryExpenses])
+
+  // Calculate median for selected category
+  const medianValue = useMemo(() => {
+    if (selectedCategory === 'all') return null
+
+    const values = categoryExpenses
+      .map(entry => {
+        const categoryKey = Object.keys(entry).find(key => key !== 'month')
+        if (!categoryKey) return undefined
+        const value = entry[categoryKey]
+        return typeof value === 'number' ? value : undefined
+      })
+      .filter((value): value is number => value !== undefined)
+      .sort((a, b) => a - b)
+
+    const mid = Math.floor(values.length / 2)
+    return values.length % 2 === 0
+      ? (values[mid - 1] + values[mid]) / 2
+      : values[mid]
+  }, [categoryExpenses, selectedCategory])
+
   // Bar Chart Filtering
   const barFilteredTransactions = useMemo(() => 
     filterTransactions(barTimeFilter, 'all', 'all', barOriginFilter), 
@@ -137,44 +206,6 @@ export function AnalysesTab({ transactions }: AnalysesTabProps) {
       .map(([category, total]) => ({ category, total }))
       .sort((a, b) => b.total - a.total) // Sort by total in descending order
   }, [transactions, categoryBarTimeFilter])
-
-  // Line Chart Expenses by Category/Subcategory
-  const categoryExpenses = useMemo(() => {
-    const expensesByMonthAndCategory: { [key: string]: { [key: string]: number } } = {}
-
-    lineFilteredTransactions.forEach(transaction => {
-      const monthKey = `${monthNames[transaction.mesReferencia - 1]}/${transaction.anoReferencia}`
-      const categoryKey = selectedSubcategory !== 'all' 
-        ? transaction.subcategoria 
-        : (selectedCategory !== 'all' ? transaction.categoria : transaction.categoria)
-
-      if (!expensesByMonthAndCategory[monthKey]) {
-        expensesByMonthAndCategory[monthKey] = {}
-      }
-
-      if (!expensesByMonthAndCategory[monthKey][categoryKey]) {
-        expensesByMonthAndCategory[monthKey][categoryKey] = 0
-      }
-
-      expensesByMonthAndCategory[monthKey][categoryKey] += Math.abs(transaction.valor)
-    })
-
-    // Transform data for line chart
-    const transformedData = Object.entries(expensesByMonthAndCategory)
-      .map(([month, categories]) => ({
-        month,
-        ...categories
-      }))
-      .sort((a, b) => {
-        const [aMonth, aYear] = a.month.split('/')
-        const [bMonth, bYear] = b.month.split('/')
-        const monthOrder = monthNames
-        return (parseInt(aYear) - parseInt(bYear)) || 
-               (monthOrder.indexOf(aMonth) - monthOrder.indexOf(bMonth))
-      })
-
-    return transformedData
-  }, [lineFilteredTransactions, selectedCategory, selectedSubcategory])
 
   // Get unique categories and subcategories
   const uniqueCategories = Array.from(new Set(transactions.map(t => t.categoria)))
@@ -331,11 +362,36 @@ export function AnalysesTab({ transactions }: AnalysesTabProps) {
           )}
         </div>
 
-        {/* Total Expenses Card */}
+        {/* Average Expenses Card */}
         {(selectedCategory !== 'all' || selectedSubcategory !== 'all') && (
           <Card className="w-full mb-4">
             <CardHeader>
-              <CardTitle>Total de Despesas</CardTitle>
+              <CardTitle>Média de Despesas</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-primary">
+                {new Intl.NumberFormat('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL'
+                }).format(averageCategoryExpenses)}
+              </div>
+              <div className="text-sm text-muted-foreground mt-2">
+                {`Período: ${lineTimeFilter === '6months' ? 'Últimos 6 meses' : 
+                  lineTimeFilter === '12months' ? 'Últimos 12 meses' : 
+                  'Ano corrente'}`}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {`Categoria: ${categoryLabel}`}
+              </div>
+            </CardContent>
+          </Card>
+          
+        )}
+        {/* Average Expenses Card */}
+        {(selectedCategory !== 'all' || selectedSubcategory !== 'all') && (
+          <Card className="w-full mb-4">
+            <CardHeader>
+              <CardTitle>Total Despesas</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-primary">
@@ -354,6 +410,7 @@ export function AnalysesTab({ transactions }: AnalysesTabProps) {
               </div>
             </CardContent>
           </Card>
+          
         )}
 
         <div className="h-[400px]">
@@ -384,6 +441,14 @@ export function AnalysesTab({ transactions }: AnalysesTabProps) {
                   />
                 ))
               }
+              {selectedCategory !== 'all' && medianValue && (
+                <ReferenceLine 
+                  y={medianValue} 
+                  stroke="red" 
+                  strokeDasharray="3 3"
+                  label={{ value: 'Mediana', position: 'right' }}
+                />
+              )}
             </LineChart>
           </ResponsiveContainer>
         </div>
