@@ -364,6 +364,31 @@ export function AnalysesTab({ transactions }: AnalysesTabProps) {
 
         {/* Average Expenses Card */}
         {(selectedCategory !== 'all' || selectedSubcategory !== 'all') && (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+          
+        
+          <Card className="w-full mb-4">
+            <CardHeader>
+              <CardTitle>Total Despesas</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-primary">
+                {new Intl.NumberFormat('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL'
+                }).format(totalCategoryExpenses)}
+              </div>
+              <div className="text-sm text-muted-foreground mt-2">
+                {`Período: ${lineTimeFilter === '6months' ? 'Últimos 6 meses' : 
+                  lineTimeFilter === '12months' ? 'Últimos 12 meses' : 
+                  'Ano corrente'}`}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {`Categoria: ${categoryLabel}`}
+              </div>
+            </CardContent>
+          </Card>
+
           <Card className="w-full mb-4">
             <CardHeader>
               <CardTitle>Média de Despesas</CardTitle>
@@ -386,31 +411,7 @@ export function AnalysesTab({ transactions }: AnalysesTabProps) {
             </CardContent>
           </Card>
           
-        )}
-        {/* Average Expenses Card */}
-        {(selectedCategory !== 'all' || selectedSubcategory !== 'all') && (
-          <Card className="w-full mb-4">
-            <CardHeader>
-              <CardTitle>Total Despesas</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-primary">
-                {new Intl.NumberFormat('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL'
-                }).format(totalCategoryExpenses)}
-              </div>
-              <div className="text-sm text-muted-foreground mt-2">
-                {`Período: ${lineTimeFilter === '6months' ? 'Últimos 6 meses' : 
-                  lineTimeFilter === '12months' ? 'Últimos 12 meses' : 
-                  'Ano corrente'}`}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                {`Categoria: ${categoryLabel}`}
-              </div>
-            </CardContent>
-          </Card>
-          
+          </div>
         )}
 
         <div className="h-[400px]">
