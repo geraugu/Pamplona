@@ -237,6 +237,7 @@ export function useUploadManager() {
 
   const processInvestmentCsv = async (file: File, investmentDate: string) => {
     const newInvestments = await investmentUpload.processInvestmentCsv(file, investmentDate)
+    console.log(newInvestments)
     setInvestments(newInvestments)
     if (investmentUpload.error) setError(investmentUpload.error)
     return newInvestments

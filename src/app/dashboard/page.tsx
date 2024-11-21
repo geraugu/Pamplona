@@ -10,7 +10,7 @@ import { monthNames } from "../components/lib/utils"
 import { OverviewTab } from "./tabs/overview-tab"
 import { TransactionsTab } from "./tabs/transactions-tab"
 import Link from "next/link"
-// import { InvestmentsTab } from "./tabs/investments-tab"
+import { InvestmentsTab } from "./tabs/investments-tab"
 import { AnalysesTab } from "./tabs/analyses-tab"
 
 export default function DashboardPage() {
@@ -195,7 +195,7 @@ export default function DashboardPage() {
             />
           </TabsContent>
           <TabsContent value="investments">
-            {/* <InvestmentsTab /> */}
+            <InvestmentsTab />
           </TabsContent>
           <TabsContent value="analyses">
             <AnalysesTab transactions={transactions} />

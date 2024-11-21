@@ -162,7 +162,7 @@ export function InvestmentsTab() {
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Selecione a data" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white">
             {dates.map(date => (
               <SelectItem key={date} value={date}>
                 {date}
@@ -289,6 +289,15 @@ export function InvestmentsTab() {
                   ? (investment["L/P a Realizar"] / investment["Fin. Custo"]) * 100 
                   : 0;
                 
+                // Safe conversion of percentage columns
+                const percentLPColumn = typeof investment["% L/P"] === 'string' 
+                  ? parseFloat(investment["% L/P"]) 
+                  : investment["% L/P"] || 0;
+
+                const percentCarteiraColumn = typeof investment["% Carteira"] === 'string'
+                  ? parseFloat(investment["% Carteira"])
+                  : investment["% Carteira"] || 0;
+                
                 return (
                 <TableRow 
                   key={investment.id} 
@@ -305,8 +314,8 @@ export function InvestmentsTab() {
                     {formatCurrency(investment["L/P a Realizar"])}
                     <span className="text-sm ml-2">({percentLP.toFixed(2)}%)</span>
                   </TableCell>
-                  <TableCell>{investment["% L/P"].toFixed(2)}%</TableCell>
-                  <TableCell>{investment["% Carteira"].toFixed(2)}%</TableCell>
+                  <TableCell>{percentLPColumn.toFixed(2)}%</TableCell>
+                  <TableCell>{percentCarteiraColumn.toFixed(2)}%</TableCell>
                 </TableRow>
               )})}
             </TableBody>
