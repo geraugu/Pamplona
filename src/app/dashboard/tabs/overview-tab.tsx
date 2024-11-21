@@ -197,7 +197,7 @@ export function OverviewTab({
         </Card>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
+        <Card className="col-span-7">
           <CardHeader>
             <CardTitle>Visão Geral</CardTitle>
           </CardHeader>
@@ -205,9 +205,9 @@ export function OverviewTab({
             <Overview transactions={currentYearTransactions} />
           </CardContent>
         </Card>
-        <Card className="col-span-3">
+        <Card className="col-span-7">
           <CardHeader>
-            <CardTitle>Transações Parceladas</CardTitle>
+            <CardTitle>Transações Parceladas  ({lastAvailableMonth}/{lastAvailableYear})</CardTitle>
           </CardHeader>
           <CardContent>
             {lastMonthInstallmentTransactions.length > 0 ? (
@@ -224,11 +224,12 @@ export function OverviewTab({
                     // Safe parsing of installment
                     const { current, total } = safeParseInstallment(transaction.parcela);
                     const isPenultimateParcela = current === total - 1;
+                    const isUltimaParcela = current === total;
 
                     return (
                       <TableRow 
                         key={index} 
-                        className={isPenultimateParcela ? 'bg-green-100 hover:bg-green-200' : ''}
+                        className={isPenultimateParcela ? 'bg-green-100 hover:bg-green-200' : isUltimaParcela ? 'bg-orange-100 hover:bg-orange-200' : ''}
                       >
                         <TableCell>{transaction.descricao}</TableCell>
                         <TableCell>{formatCurrency(Math.abs(transaction.valor))}</TableCell>
@@ -245,6 +246,13 @@ export function OverviewTab({
                       <TableCell></TableCell>
                     </TableRow>
                   )}
+                  {lastInstallmentTransactions.length > 0 && (
+                    <TableRow>
+                      <TableCell colSpan={1} className="font-bold">Total Últimas Parcelas</TableCell>
+                      <TableCell className="font-bold">{formatCurrency(totalLastInstallmentValue)}</TableCell>
+                      <TableCell></TableCell>
+                    </TableRow>
+                  )}
                   <TableRow>
                     <TableCell colSpan={1} className="font-bold">Total</TableCell>
                     <TableCell className="font-bold">{formatCurrency(totalInstallmentValue)}</TableCell>
@@ -256,57 +264,7 @@ export function OverviewTab({
               <p className="text-muted-foreground">Nenhuma transação parcelada encontrada.</p>
             )}
           </CardContent>
-        </Card>
-        <Card className="col-span-7">
-          <CardHeader>
-            <CardTitle>Últimas Parcelas ({lastAvailableMonth}/{lastAvailableYear})</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {(lastInstallmentTransactions.length > 0) ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Descrição</TableHead>
-                    <TableHead>Valor</TableHead>
-                    <TableHead>Parcelas</TableHead>
-                    <TableHead>Tipo</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {lastInstallmentTransactions.map((transaction: Transaction, index: number) => {
-                    const { current, total } = safeParseInstallment(transaction.parcela);
-                    const isLastParcela = current === total;
-
-                    return (
-                      <TableRow 
-                        key={index} 
-                        className={isLastParcela ? 'bg-red-100 hover:bg-red-200' : 'bg-green-100 hover:bg-green-200'}
-                      >
-                        <TableCell>{transaction.descricao}</TableCell>
-                        <TableCell>{formatCurrency(Math.abs(transaction.valor))}</TableCell>
-                        <TableCell>{transaction.parcela || 'N/A'}</TableCell>
-                        <TableCell>
-                          {isLastParcela ? 'Última Parcela' : 'Penúltima Parcela'}
-                        </TableCell>
-                      </TableRow>
-                    )
-                  })}
-                </TableBody>
-                <TableFooter>
-                  {lastInstallmentTransactions.length > 0 && (
-                    <TableRow>
-                      <TableCell colSpan={1} className="font-bold">Total Últimas Parcelas</TableCell>
-                      <TableCell className="font-bold">{formatCurrency(totalLastInstallmentValue)}</TableCell>
-                      <TableCell colSpan={2}></TableCell>
-                    </TableRow>
-                  )}
-                </TableFooter>
-              </Table>
-            ) : (
-              <p className="text-muted-foreground">Nenhuma transação na última ou penúltima parcela encontrada.</p>
-            )}
-          </CardContent>
-        </Card>
+        </Card>       
       </div>
     </div>
   )
