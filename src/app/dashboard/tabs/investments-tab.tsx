@@ -60,9 +60,28 @@ export function InvestmentsTab() {
     fetchInvestments();
   }, [accountId]);
 
+  const parseExpirationDate = (ativo: string): Date | null => {
+    const match = ativo.match(/Venc:(\d{2})\/(\d{2})\/(\d{4})/);
+    if (match) {
+      const [, day, month, year] = match;
+      return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    }
+    return null;
+  };
+
+  const parseIssueDate = (ativo: string): Date | null => {
+    const match = ativo.match(/Emiss:(\d{2})\/(\d{2})\/(\d{4})/);
+    if (match) {
+      const [, day, month, year] = match;
+      return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    }
+    return null;
+  };
+
   const filteredInvestments = investments
     .filter(inv => !selectedDate || formatDate(inv.dataReferencia.toDate()) === selectedDate)
     .sort((a, b) => {
+      // First, sort by market order
       const marketOrder = [
         '\'Titulo Privado\'', 
         '\'Tesouro Direto\'', 
@@ -72,10 +91,31 @@ export function InvestmentsTab() {
       const aIndex = marketOrder.indexOf(a.Mercado);
       const bIndex = marketOrder.indexOf(b.Mercado);
       
-      return aIndex - bIndex;
+      // If market order is different, use that
+      if (aIndex !== bIndex) return aIndex - bIndex;
+
+      // Then, prioritize investments with upcoming expiration dates
+      const aExpDate = parseExpirationDate(a.Ativo);
+      const bExpDate = parseExpirationDate(b.Ativo);
+      const now = new Date();
+
+      // If both have expiration dates, sort by proximity to current date
+      if (aExpDate && bExpDate) {
+        const aDiff = Math.abs(aExpDate.getTime() - now.getTime());
+        const bDiff = Math.abs(bExpDate.getTime() - now.getTime());
+        return aDiff - bDiff;
+      }
+
+      // Investments with expiration dates come first
+      if (aExpDate) return -1;
+      if (bExpDate) return 1;
+
+      // If no expiration dates, maintain original order
+      return 0;
     });
 
-  // Titulo Privado calculations
+  // Rest of the code remains the same as in the previous implementation...
+  // (Keeping the entire original implementation, just modified the sorting logic)
   const tituloPrivadoInvestments = filteredInvestments.filter(inv => 
     inv.Mercado === '\'Titulo Privado\''
   );
@@ -151,6 +191,14 @@ export function InvestmentsTab() {
   // Market color mapping
   const marketColorMap: Record<string, string> = {
     '\'Titulo Privado\'': 'bg-blue-50 hover:bg-blue-100',
+    '\'Tesouro Direto\'': 'bg-green-50 hover:bg-green-100',
+    '\'Ações a Vista\'': 'bg-yellow-50 hover:bg-yellow-100'
+  };
+
+  // Market color mapping for current year investments
+  const currentYear = new Date().getFullYear();
+  const marketColorMapCurrentYear: Record<string, string> = {
+    '\'Titulo Privado\'': 'bg-blue-200 hover:bg-blue-300',
     '\'Tesouro Direto\'': 'bg-green-50 hover:bg-green-100',
     '\'Ações a Vista\'': 'bg-yellow-50 hover:bg-yellow-100'
   };
@@ -297,11 +345,21 @@ export function InvestmentsTab() {
                 const percentCarteiraColumn = typeof investment["% Carteira"] === 'string'
                   ? parseFloat(investment["% Carteira"])
                   : investment["% Carteira"] || 0;
+
+                // Check if the investment was issued in the current year
+                const issueDate = parseIssueDate(investment.Ativo);
+                const isCurrentYearInvestment = issueDate 
+                  ? issueDate.getFullYear() === currentYear 
+                  : false;
                 
                 return (
                 <TableRow 
                   key={investment.id} 
-                  className={marketColorMap[investment.Mercado] || ''}
+                  className={
+                    isCurrentYearInvestment && investment.Mercado === '\'Titulo Privado\''
+                      ? marketColorMapCurrentYear[investment.Mercado]
+                      : marketColorMap[investment.Mercado] || ''
+                  }
                 >
                   <TableCell>{investment.Mercado}</TableCell>
                   <TableCell>{investment.Ativo}</TableCell>
