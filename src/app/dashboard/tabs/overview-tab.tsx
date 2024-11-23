@@ -41,7 +41,6 @@ export function OverviewTab({
 
   // Safe parsing of parcela string
   const safeParseInstallment = (parcela: string | null | undefined) => {
-    //console.log(parcela)
     if (!parcela) return { current: 0, total: 0 };
     
     // Remove any whitespace and convert to lowercase for consistent parsing
@@ -54,7 +53,6 @@ export function OverviewTab({
     const parts = parcelaRemoved.split(/[/\s]+/);
     
     // Try to parse current and total installments
-    
     const current = parts.length > 0 ? parseInt(parts[0], 10) : 0;
     const total = parts.length > 1 ? parseInt(parts[1], 10) : 0;
     
@@ -78,6 +76,20 @@ export function OverviewTab({
     
     // Keep only transactions that are not fully paid
     return current > 0 && total > 0 && current <= total;
+  }).sort((a, b) => {
+    const aInstallment = safeParseInstallment(a.parcela);
+    const bInstallment = safeParseInstallment(b.parcela);
+
+    // Prioritize last installments
+    if (aInstallment.current === aInstallment.total && bInstallment.current !== bInstallment.total) return -1;
+    if (bInstallment.current === bInstallment.total && aInstallment.current !== aInstallment.total) return 1;
+
+    // Then prioritize penultimate installments
+    if (aInstallment.current === aInstallment.total - 1 && bInstallment.current !== bInstallment.total - 1) return -1;
+    if (bInstallment.current === bInstallment.total - 1 && aInstallment.current !== bInstallment.total - 1) return 1;
+
+    // If both are the same type of installment, maintain original order
+    return 0;
   });
 
   // Calculate total value of installment transactions
@@ -92,7 +104,6 @@ export function OverviewTab({
 
   // Find last installment transactions
   const lastInstallmentTransactions = lastMonthInstallmentTransactions.filter(transaction => {
-    //console.log(transaction.parcela)
     const { current, total } = safeParseInstallment(transaction.parcela);
     return current === total;
   });
