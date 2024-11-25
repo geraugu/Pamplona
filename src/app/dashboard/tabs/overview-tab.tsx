@@ -36,7 +36,10 @@ export function OverviewTab({
     acc + (transaction.categoria === "Reserva" && transaction.subcategoria === "Investimento" ? Math.abs(transaction.valor) : 0), 0);
 
   // Find the last available month and year
-  const lastAvailableMonth = Math.max(...transactions.map(t => t.mesReferencia))
+  const lastAvailableMonth = currentYearTransactions.length > 0 
+  ? Math.max(...currentYearTransactions.map(t => t.mesReferencia))
+  : new Date().getMonth() + 1; // Default to current month if no transactions
+
   const lastAvailableYear = Math.max(...transactions.map(t => t.anoReferencia))
 
   // Safe parsing of parcela string

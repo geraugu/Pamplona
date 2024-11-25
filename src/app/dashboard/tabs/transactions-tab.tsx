@@ -319,7 +319,10 @@ export function TransactionsTab({
       const batch = writeBatch(db);
       const transactionsToDelete = transactions.filter(t => 
         t.mesReferencia === parseInt(selectedMonth) &&
-        t.anoReferencia === parseInt(selectedYear)
+        t.anoReferencia === parseInt(selectedYear) &&
+        // Add origin filter
+        (selectedOrigin === 'all' || 
+         (t.origem || 'conta_bancaria') === selectedOrigin)
       );
 
       transactionsToDelete.forEach(transaction => {
@@ -333,14 +336,23 @@ export function TransactionsTab({
       setTransactions(prevTransactions => 
         prevTransactions.filter(t => 
           !(t.mesReferencia === parseInt(selectedMonth) && 
-            t.anoReferencia === parseInt(selectedYear))
+            t.anoReferencia === parseInt(selectedYear) &&
+            // Apply the same origin filter when updating local state
+            (selectedOrigin === 'all' || 
+             (t.origem || 'conta_bancaria') === selectedOrigin))
         )
       );
 
-      // Show success toast
+      // Show success toast with origin information
+      const originText = selectedOrigin === 'all' 
+        ? 'de todas as fontes' 
+        : (selectedOrigin === 'cartao_credito' 
+          ? 'do Cartão de Crédito' 
+          : 'da Conta Bancária');
+
       toast({
         title: "Transações Excluídas",
-        description: `Todas as transações de ${monthNames[selectedMonth as keyof typeof monthNames]} foram excluídas com sucesso.`,
+        description: `Todas as transações de ${monthNames[selectedMonth as keyof typeof monthNames]} ${originText} foram excluídas com sucesso.`,
         variant: "default"
       });
     } catch (err) {
@@ -784,6 +796,64 @@ return (
                       <DialogHeader>
                         <DialogTitle>Editar Transação</DialogTitle>
                       </DialogHeader>
+                      {/* Data */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="data" className="text-right">
+              Data
+            </Label>
+            <Input 
+              id="data" 
+              type="date"
+              value={editingTransaction?.data.toDate().toISOString().split('T')[0] || ''}
+              onChange={(e) => {
+                const newDate = new Date(e.target.value);
+                setEditingTransaction(prev => 
+                  prev ? {
+                    ...prev, 
+                    data: Timestamp.fromDate(newDate),
+                    mesReferencia: newDate.getMonth() + 1,
+                    anoReferencia: newDate.getFullYear()
+                  } : null
+                )
+              }}
+              className="col-span-3" 
+            />
+          </div>
+          {/* Mês de Referência */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="mesReferencia" className="text-right">
+              Mês Ref.
+            </Label>
+            <Input 
+              id="mesReferencia" 
+              type="number"
+              min="1"
+              max="12"
+              value={editingTransaction?.mesReferencia || ''}
+              onChange={(e) => setEditingTransaction(prev => 
+                prev ? {...prev, mesReferencia: parseInt(e.target.value)} : null
+              )}
+              className="col-span-3" 
+            />
+          </div>
+
+          {/* Ano de Referência */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="anoReferencia" className="text-right">
+              Ano Ref.
+            </Label>
+            <Input 
+              id="anoReferencia" 
+              type="number"
+              min="2000"
+              max="2100"
+              value={editingTransaction?.anoReferencia || ''}
+              onChange={(e) => setEditingTransaction(prev => 
+                prev ? {...prev, anoReferencia: parseInt(e.target.value)} : null
+              )}
+              className="col-span-3" 
+            />
+          </div>
                       <div className="grid gap-4 py-4">
                         {/* Descrição */}
                         <div className="grid grid-cols-4 items-center gap-4">
