@@ -56,15 +56,17 @@ export interface Transacao {
   id: number;
   data: string;
   descricao: string;
-  cidade: string;
+  cidade?: string | null;
   parcela?: string | null;
-  pais: string;
+  pais?: string | null;
   valor: number;
   categoria: CategoriaKeys | null;
   subcategoria: string | null;
   origem: string;
   anoReferencia?: number;
   mesReferencia?: number;
+  mesFatura?: number;
+  anoFatura?: number;
   accountId?: string;
   createdAt?: Timestamp;
 }
