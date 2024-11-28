@@ -424,10 +424,21 @@ export function InvestmentsTab() {
                   </div>
                 </div>
               </div>
-              <div className="mt-4 pt-4 border-t">
+              <div className="mt-4 pt-4 border-t" >
+              <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
+                <div>
                 <div className="text-sm text-gray-600">Investimento Líquido no Ano</div>
                 <div className={`text-lg sm:text-2xl font-bold ${yearInvestmentTotal - yearRedemptionTotal >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
                   {formatCurrency(yearInvestmentTotal - yearRedemptionTotal)}
+                </div>
+                </div>
+
+                <div>
+                <div className="text-sm text-gray-600">Rendimento no Ano</div>
+                <div className={`text-lg sm:text-2xl font-bold ${yearInvestmentTotal - yearRedemptionTotal >= 0 ? 'text-green-700' : 'text-red-600'}`}>
+                  {formatCurrency(totalFinMercadoGeral - (yearInvestmentTotal - yearRedemptionTotal+firstYearTotal))}
+                </div>
+                </div>
                 </div>
               </div>
             </CardContent>

@@ -59,8 +59,11 @@ export function useBankUpload({
             subcategoria: categoryMatch?.subcategory || null,
             mesReferencia: parseInt(month),
             anoReferencia: parseInt(year),
+            mesFatura: parseInt(month),
+            anoFatura: parseInt(year),
             origem: 'conta_bancaria'
           }
+          console.log(bankTransaction)
 
           // Update category mapping
           if (bankTransaction.categoria && bankTransaction.descricao) {

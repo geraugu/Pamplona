@@ -86,6 +86,21 @@ export function TransactionsTab({
     anotacao: null
   });
 
+  // Filtered transactions by date only for card totals
+  const dateFilteredTransactions = useMemo(() => {
+    return transactions.filter(transaction => {
+      // Year filtering
+      const yearMatch = selectedYear === 'all' || 
+        transaction.anoReferencia === parseInt(selectedYear);
+
+      // Month filtering
+      const monthMatch = selectedMonth === 'all' || 
+        transaction.mesReferencia === parseInt(selectedMonth);
+
+      return yearMatch && monthMatch;
+    });
+  }, [transactions, selectedYear, selectedMonth]);
+
   // Updated filtering logic
   const filteredTransactions = useMemo(() => {
     return transactions.filter(transaction => {
@@ -119,6 +134,35 @@ export function TransactionsTab({
     selectedSubcategory, 
     selectedOrigin
   ]);
+
+  // Calculation of totals (only affected by date filters)
+  const totalIncome = useMemo<number>(() => 
+    dateFilteredTransactions
+      .filter(t => t.valor > 0 && t.categoria !== "Não contábil")
+      .reduce((sum, t) => sum + t.valor, 0),
+    [dateFilteredTransactions]
+  );
+
+  const totalExpenses = useMemo<number>(() => 
+    dateFilteredTransactions
+      .filter(t => t.valor < 0 && t.categoria !== "Não contábil" && t.categoria !== "Reserva")
+      .reduce((sum, t) => sum + Math.abs(t.valor), 0),
+    [dateFilteredTransactions]
+  );
+
+  const totalInvestments = useMemo<number>(() => 
+    dateFilteredTransactions
+      .filter(t => t.subcategoria === "Investimento" && t.valor < 0)
+      .reduce((sum, t) => sum + Math.abs(t.valor), 0),
+    [dateFilteredTransactions]
+  );
+
+  const totalRedemptions = useMemo<number>(() => 
+    dateFilteredTransactions
+      .filter(t => t.subcategoria === "Resgate investimentos" && t.valor > 0)
+      .reduce((sum, t) => sum + t.valor, 0),
+    [dateFilteredTransactions]
+  );
 
   // Derive available subcategories based on selected category
   const availableSubcategories = useMemo(() => {
@@ -158,28 +202,6 @@ export function TransactionsTab({
       .map(([categoria, total]) => ({ categoria, total }))
       .sort((a, b) => b.total - a.total);
   }, [filteredTransactions]);
-
-  // Calculation of totals
-  const totalIncome = useMemo<number>(() => 
-    filteredTransactions
-      .filter(t => t.valor > 0 && t.categoria !== "Não contábil")
-      .reduce((sum, t) => sum + t.valor, 0),
-    [filteredTransactions]
-  );
-
-  const totalExpenses = useMemo<number>(() => 
-    filteredTransactions
-      .filter(t => t.valor < 0 && t.categoria !== "Não contábil" && t.categoria !== "Reserva")
-      .reduce((sum, t) => sum + Math.abs(t.valor), 0),
-    [filteredTransactions]
-  );
-
-  const totalInvestments = useMemo<number>(() => 
-    filteredTransactions
-      .filter(t => t.subcategoria === "Investimento")
-      .reduce((sum, t) => sum + Math.abs(t.valor), 0),
-    [filteredTransactions]
-  );
 
   const handleUpdateTransaction = async () => {
     if (!editingTransaction) return;
@@ -717,32 +739,34 @@ return (
         </div>
       </CardHeader>
 
-      {/* Rest of the component remains the same */}
       <CardContent>
-        {/* Totals Cards */}
-        <div className="grid gap-4 md:grid-cols-3 mb-4">
+        {/* Consolidated Totals Cards */}
+        <div className="grid gap-4 md:grid-cols-2 mb-4">
+          {/* Receitas e Despesas Card */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Receitas</CardTitle>
+              <CardTitle className="text-sm font-medium">Receitas e Despesas</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(totalIncome)}</div>
+              <div className="text-2xl font-bold text-green-600">Receitas: {formatCurrency(totalIncome)}</div>
+              <div className="text-2xl font-bold text-red-600">Despesas: {formatCurrency(totalExpenses)}</div>
+              <div className="text-2xl font-bold mt-2 border-t pt-2">
+                Resultado: {formatCurrency(totalIncome - totalExpenses)}
+              </div>
             </CardContent>
           </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Despesas</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(totalExpenses)}</div>
-            </CardContent>
-          </Card>
+
+          {/* Investimentos Card */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Investimentos</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(totalInvestments)}</div>
+              <div className="text-2xl font-bold text-blue-600">Investimentos: {formatCurrency(totalInvestments)}</div>
+              <div className="text-2xl font-bold text-purple-600">Resgates: {formatCurrency(totalRedemptions)}</div>
+              <div className="text-2xl font-bold mt-2 border-t pt-2">
+                Resultado: {formatCurrency(totalInvestments - totalRedemptions)}
+              </div>
             </CardContent>
           </Card>
         </div>
