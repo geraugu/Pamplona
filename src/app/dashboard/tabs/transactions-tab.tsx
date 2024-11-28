@@ -48,7 +48,8 @@ interface NewTransaction {
   subcategoria: string;
   origem: 'cartao_credito' | 'conta_bancaria' | 'bank-statement';
   data: Date;
-  parcela?: string | null;
+  parcela: string | null;
+  anotacao: string | null;
 }
 
 export function TransactionsTab({
@@ -81,7 +82,8 @@ export function TransactionsTab({
     subcategoria: '',
     origem: 'conta_bancaria',
     data: new Date(),
-    parcela: null
+    parcela: null,
+    anotacao: null
   });
 
   // Updated filtering logic
@@ -191,7 +193,8 @@ export function TransactionsTab({
         subcategoria: editingTransaction.subcategoria,
         data: editingTransaction.data,
         mesReferencia: editingTransaction.mesReferencia,
-        anoReferencia: editingTransaction.anoReferencia
+        anoReferencia: editingTransaction.anoReferencia,
+        anotacao: editingTransaction.anotacao || null
       });
 
       // Update transactions in parent component
@@ -228,17 +231,30 @@ export function TransactionsTab({
   };
 
   const handleCreateTransaction = async () => {
+    if (!newTransaction.descricao || !newTransaction.categoria || !newTransaction.subcategoria) {
+      toast({
+        title: "Erro",
+        description: "Por favor, preencha todos os campos obrigatórios",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       const transactionDate = new Date(newTransaction.data);
       const transactionData: Omit<Transaction, 'id'> = {
-        ...newTransaction,
+        descricao: newTransaction.descricao,
+        valor: newTransaction.valor,
+        categoria: newTransaction.categoria,
+        subcategoria: newTransaction.subcategoria,
         data: Timestamp.fromDate(transactionDate),
-        anoReferencia: transactionDate.getFullYear(),
         mesReferencia: transactionDate.getMonth() + 1,
-        accountId,
-        pais: 'Brasil',
+        anoReferencia: transactionDate.getFullYear(),
         parcela: newTransaction.parcela || null,
-        origem: newTransaction.origem === 'bank-statement' ? 'bank-statement' : newTransaction.origem
+        origem: newTransaction.origem === 'bank-statement' ? 'bank-statement' : newTransaction.origem,
+        pais: 'Brasil',
+        accountId,
+        anotacao: newTransaction.anotacao
       };
 
       const docRef = await addDoc(collection(db, "transactions"), transactionData);
@@ -264,7 +280,8 @@ export function TransactionsTab({
         subcategoria: '',
         origem: 'conta_bancaria',
         data: new Date(),
-        parcela: null
+        parcela: null,
+        anotacao: null
       });
 
       // Show success toast
@@ -395,7 +412,8 @@ return (
                     subcategoria: '',
                     origem: 'conta_bancaria',
                     data: new Date(),
-                    parcela: null
+                    parcela: null,
+                    anotacao: null
                   })}
                 >
                   <PlusIcon className="h-4 w-4" />
@@ -547,6 +565,23 @@ return (
             ...prev,
             parcela: value || null
           }))}
+                    />
+                  </div>
+
+                  {/* Anotação (opcional) */}
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="anotacao" className="text-right">
+                      Anotação
+                    </Label>
+                    <Input 
+                      id="anotacao" 
+                      value={newTransaction.anotacao || ''} 
+                      onChange={(e) => setNewTransaction(prev => ({
+                        ...prev,
+                        anotacao: e.target.value
+                      }))}
+                      className="col-span-3" 
+                      placeholder="Adicione uma anotação (opcional)"
                     />
                   </div>
                 </div>
@@ -755,10 +790,9 @@ return (
               <TableHead>Descrição</TableHead>
               <TableHead>Categoria</TableHead>
               <TableHead>Subcategoria</TableHead>
-              <TableHead>Parcela</TableHead>
-              <TableHead>Origem</TableHead>
-              <TableHead className="text-right">Valor</TableHead>
-              <TableHead className="text-center">Ações</TableHead>
+              <TableHead>Valor</TableHead>
+              <TableHead>Anotação</TableHead>
+              <TableHead>Ações</TableHead>
             </TableRow>
           </TableHeader>
       <TableBody>
@@ -771,205 +805,222 @@ return (
             <TableCell>{transaction.descricao}</TableCell>
             <TableCell>{transaction.categoria}</TableCell>
             <TableCell>{transaction.subcategoria}</TableCell>
-            <TableCell>{transaction.parcela}</TableCell>
-            <TableCell>
-              {transaction.origem === 'cartao_credito' 
-                ? 'Cartão de Crédito' 
-                : transaction.origem === 'bank-statement'
-                ? 'Extrato Bancário'
-                : 'Conta Bancária'}
+            <TableCell className={transaction.valor >= 0 ? 'text-green-600' : 'text-red-600'}>
+              {formatCurrency(transaction.valor)}
             </TableCell>
-            <TableCell className="text-right">{formatCurrency(transaction.valor)}</TableCell>
-                <TableCell className="flex justify-center items-center space-x-2">
-                  {/* Edit Transaction Dialog */}
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        onClick={() => setEditingTransaction(transaction)}
-                      >
-                        <PencilIcon className="h-4 w-4" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="bg-white">
-                      <DialogHeader>
-                        <DialogTitle>Editar Transação</DialogTitle>
-                      </DialogHeader>
+            <TableCell>
+              <div className="max-w-xs truncate" title={transaction.anotacao || ''}>
+                {transaction.anotacao}
+              </div>
+            </TableCell>
+            <TableCell className="flex gap-2">
+              {/* Edit Transaction Dialog */}
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={() => setEditingTransaction(transaction)}
+                  >
+                    <PencilIcon className="h-4 w-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="bg-white">
+                  <DialogHeader>
+                    <DialogTitle>Editar Transação</DialogTitle>
+                  </DialogHeader>
+                  {editingTransaction && (
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="edit-descricao" className="text-right">
+                          Descrição
+                        </Label>
+                        <Input
+                          id="edit-descricao"
+                          value={editingTransaction.descricao}
+                          className="col-span-3"
+                          onChange={(e) => setEditingTransaction({
+                            ...editingTransaction,
+                            descricao: e.target.value
+                          })}
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="edit-anotacao" className="text-right">
+                          Anotação
+                        </Label>
+                        <Input
+                          id="edit-anotacao"
+                          value={editingTransaction.anotacao || ''}
+                          className="col-span-3"
+                          onChange={(e) => setEditingTransaction({
+                            ...editingTransaction,
+                            anotacao: e.target.value
+                          })}
+                          placeholder="Adicione uma anotação (opcional)"
+                        />
+                      </div>
                       {/* Data */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="data" className="text-right">
-              Data
-            </Label>
-            <Input 
-              id="data" 
-              type="date"
-              value={editingTransaction?.data.toDate().toISOString().split('T')[0] || ''}
-              onChange={(e) => {
-                const newDate = new Date(e.target.value);
-                setEditingTransaction(prev => 
-                  prev ? {
-                    ...prev, 
-                    data: Timestamp.fromDate(newDate),
-                    mesReferencia: newDate.getMonth() + 1,
-                    anoReferencia: newDate.getFullYear()
-                  } : null
-                )
-              }}
-              className="col-span-3" 
-            />
-          </div>
-          {/* Mês de Referência */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="mesReferencia" className="text-right">
-              Mês Ref.
-            </Label>
-            <Input 
-              id="mesReferencia" 
-              type="number"
-              min="1"
-              max="12"
-              value={editingTransaction?.mesReferencia || ''}
-              onChange={(e) => setEditingTransaction(prev => 
-                prev ? {...prev, mesReferencia: parseInt(e.target.value)} : null
-              )}
-              className="col-span-3" 
-            />
-          </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="data" className="text-right">
+                          Data
+                        </Label>
+                        <Input 
+                          id="data" 
+                          type="date"
+                          value={editingTransaction?.data.toDate().toISOString().split('T')[0] || ''}
+                          onChange={(e) => {
+                            const newDate = new Date(e.target.value);
+                            setEditingTransaction(prev => 
+                              prev ? {
+                                ...prev, 
+                                data: Timestamp.fromDate(newDate),
+                                mesReferencia: newDate.getMonth() + 1,
+                                anoReferencia: newDate.getFullYear()
+                              } : null
+                            )
+                          }}
+                          className="col-span-3" 
+                        />
+                      </div>
 
-          {/* Ano de Referência */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="anoReferencia" className="text-right">
-              Ano Ref.
-            </Label>
-            <Input 
-              id="anoReferencia" 
-              type="number"
-              min="2000"
-              max="2100"
-              value={editingTransaction?.anoReferencia || ''}
-              onChange={(e) => setEditingTransaction(prev => 
-                prev ? {...prev, anoReferencia: parseInt(e.target.value)} : null
-              )}
-              className="col-span-3" 
-            />
-          </div>
-                      <div className="grid gap-4 py-4">
-                        {/* Descrição */}
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="descricao" className="text-right">
-                            Descrição
-                          </Label>
-                          <Input 
-                            id="descricao" 
-                            value={editingTransaction?.descricao || ''} 
-                            onChange={(e) => setEditingTransaction(prev => 
-                              prev ? {...prev, descricao: e.target.value} : null
-                            )}
-                            className="col-span-3" 
-                          />
-                        </div>
+                      {/* Mês de Referência */}
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="mesReferencia" className="text-right">
+                          Mês Ref.
+                        </Label>
+                        <Input 
+                          id="mesReferencia" 
+                          type="number"
+                          min="1"
+                          max="12"
+                          value={editingTransaction?.mesReferencia || ''}
+                          onChange={(e) => setEditingTransaction(prev => 
+                            prev ? {...prev, mesReferencia: parseInt(e.target.value)} : null
+                          )}
+                          className="col-span-3" 
+                        />
+                      </div>
 
-                        {/* Valor */}
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="valor" className="text-right">
-                            Valor
-                          </Label>
-                          <Input 
-                            id="valor" 
-                            type="number" 
-                            value={editingTransaction?.valor || ''} 
-                            onChange={(e) => setEditingTransaction(prev => 
-                              prev ? {...prev, valor: parseFloat(e.target.value)} : null
-                            )}
-                            className="col-span-3" 
-                          />
-                        </div>
+                      {/* Ano de Referência */}
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="anoReferencia" className="text-right">
+                          Ano Ref.
+                        </Label>
+                        <Input 
+                          id="anoReferencia" 
+                          type="number"
+                          min="2000"
+                          max="2100"
+                          value={editingTransaction?.anoReferencia || ''}
+                          onChange={(e) => setEditingTransaction(prev => 
+                            prev ? {...prev, anoReferencia: parseInt(e.target.value)} : null
+                          )}
+                          className="col-span-3" 
+                        />
+                      </div>
 
-                        {/* Categoria */}
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label className="text-right">Categoria</Label>
-                          <Select
-                            value={editingTransaction?.categoria}
-                            onValueChange={(value) => setEditingTransaction(prev => 
-                              prev ? {...prev, categoria: value, subcategoria: ''} : null
-                            )}
-                          > 
-                            <SelectTrigger className="col-span-3">
-                              <SelectValue placeholder="Selecione a categoria" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-white">
-                              {availableCategories.map(category => (
-                                <SelectItem key={category} value={category}>
-                                  {category}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
+                      {/* Valor */}
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="valor" className="text-right">
+                          Valor
+                        </Label>
+                        <Input 
+                          id="valor" 
+                          type="number" 
+                          value={editingTransaction?.valor || ''} 
+                          onChange={(e) => setEditingTransaction(prev => 
+                            prev ? {...prev, valor: parseFloat(e.target.value)} : null
+                          )}
+                          className="col-span-3" 
+                        />
+                      </div>
 
-                        {/* Subcategoria */}
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label className="text-right">Subcategoria</Label>
-                          <Select
-                            value={editingTransaction?.subcategoria}
-                            onValueChange={(value) => setEditingTransaction(prev => 
-                              prev ? {...prev, subcategoria: value} : null
-                            )}
-                            disabled={!editingTransaction?.categoria}
-                          >
-                            <SelectTrigger className="col-span-3">
-                              <SelectValue placeholder="Selecione a subcategoria" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-white">
-                              {editingTransactionSubcategories.map((subcategory: string) => (
-                                <SelectItem key={subcategory} value={subcategory}>
-                                  {subcategory}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-        </div>
-        <DialogFooter>
-          <Button 
-            type="submit"
-            onClick={handleUpdateTransaction}
-          >
-            Salvar
-          </Button>
-          <DialogClose ref={dialogCloseRef} className="hidden" />
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+                      {/* Categoria */}
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label className="text-right">Categoria</Label>
+                        <Select
+                          value={editingTransaction?.categoria}
+                          onValueChange={(value) => setEditingTransaction(prev => 
+                            prev ? {...prev, categoria: value, subcategoria: ''} : null
+                          )}
+                        > 
+                          <SelectTrigger className="col-span-3">
+                            <SelectValue placeholder="Selecione a categoria" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white">
+                            {availableCategories.map(category => (
+                              <SelectItem key={category} value={category}>
+                                {category}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-                  {/* Delete Transaction Confirmation */}
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        onClick={() => setTransactionToDelete(transaction.id)}
-                      >
-                        <TrashIcon className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent className="bg-white">
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Tem certeza que deseja excluir esta transação?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Esta ação não pode ser desfeita. A transação será permanentemente removida.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDeleteTransaction}>
-                          Excluir
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </TableCell>
+                      {/* Subcategoria */}
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label className="text-right">Subcategoria</Label>
+                        <Select
+                          value={editingTransaction?.subcategoria}
+                          onValueChange={(value) => setEditingTransaction(prev => 
+                            prev ? {...prev, subcategoria: value} : null
+                          )}
+                          disabled={!editingTransaction?.categoria}
+                        >
+                          <SelectTrigger className="col-span-3">
+                            <SelectValue placeholder="Selecione a subcategoria" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white">
+                            {editingTransactionSubcategories.map((subcategory: string) => (
+                              <SelectItem key={subcategory} value={subcategory}>
+                                {subcategory}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  )}
+                  <DialogFooter>
+                    <Button 
+                      type="submit"
+                      onClick={handleUpdateTransaction}
+                    >
+                      Salvar
+                    </Button>
+                    <DialogClose ref={dialogCloseRef} className="hidden" />
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+
+              {/* Delete Transaction Confirmation */}
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={() => setTransactionToDelete(transaction.id)}
+                  >
+                    <TrashIcon className="h-4 w-4 text-red-500" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="bg-white">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Tem certeza que deseja excluir esta transação?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta ação não pode ser desfeita. A transação será permanentemente removida.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeleteTransaction}>
+                      Excluir
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>

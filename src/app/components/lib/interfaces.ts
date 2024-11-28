@@ -1,23 +1,50 @@
 import { Timestamp } from "firebase/firestore";
 import categorias from './categorias.json'
 
-export interface Transaction {
+// Tipos comuns
+export type CategoriaKeys = keyof typeof categorias;
+
+// Interfaces base
+interface BaseEntity {
   id: string;
+  accountId: string;
+}
+
+interface BaseTransaction extends BaseEntity {
   data: Timestamp;
   descricao: string;
   valor: number;
   mesReferencia: number;
-  anoReferencia:number;
+  anoReferencia: number;
   categoria: string;
   subcategoria: string;
+}
+
+// Transações
+export interface Transaction extends BaseTransaction {
   parcela: string | null;
   pais: string;
   origem: string;
-  accountId: string;
+  anotacao: string | null;
 }
 
-export interface Investment {
-  id: string;
+export interface SavedBankTransaction extends Omit<Transaction, 'pais' | 'parcela'> {
+  tipoLancamento: string;
+  numeroDocumento: string;
+  origem: 'bank-statement';
+}
+
+export interface BankTransaction {
+  Data: string;
+  Lancamento: string;
+  Detalhes: string;
+  "N° documento": string;
+  Valor: string;
+  "Tipo Lancamento": string;
+}
+
+// Investimentos
+export interface Investment extends BaseEntity {
   Mercado: string;
   Ativo: string;
   QTD: number;
@@ -32,25 +59,14 @@ export interface Investment {
   "% Carteira": number;
   "% L/P": number;
   dataReferencia: Timestamp;
-  accountId: string;
 }
 
-export interface BankTransaction {
-  Data: string;
-  Lancamento: string;
-  Detalhes: string;
-  "N° documento": string;
-  Valor: string;
-  "Tipo Lancamento": string;
+// Categorias
+export interface CategoryMapping {
+  categoria: CategoriaKeys;
+  subcategoria: string;
+  count: number;
 }
-
-export interface SavedBankTransaction extends Omit<Transaction, 'pais' | 'parcela'> {
-  tipoLancamento: string;
-  numeroDocumento: string;
-  origem: 'bank-statement';
-}
-
-export type CategoriaKeys = keyof typeof categorias
 
 export interface Transacao {
   id: number;
@@ -69,14 +85,6 @@ export interface Transacao {
   anoFatura?: number;
   accountId?: string;
   createdAt?: Timestamp;
-}
-
-export interface CategoryMapping {
-  [key: string]: {
-    categoria: CategoriaKeys;
-    subcategoria: string;
-    count: number;
-  };
 }
 
 export interface Investimento {
