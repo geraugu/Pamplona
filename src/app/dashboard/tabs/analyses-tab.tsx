@@ -207,6 +207,53 @@ export function AnalysesTab({ transactions }: AnalysesTabProps) {
       .sort((a, b) => b.total - a.total) // Sort by total in descending order
   }, [transactions, categoryBarTimeFilter])
 
+  // Investment Chart Year Filter State
+  const [investmentYearFilter, setInvestmentYearFilter] = useState<number>(new Date().getFullYear())
+
+  // Investment and Redemption Chart Data
+  const investmentAndRedemptionData = useMemo(() => {
+    const dataByMonth: { [key: string]: { month: string, investments: number, redemptions: number, result: number } } = {}
+
+    transactions
+      .filter(transaction => transaction.anoReferencia === investmentYearFilter)
+      .forEach(transaction => {
+        const monthKey = `${monthNames[transaction.mesReferencia - 1]}`
+        
+        if (!dataByMonth[monthKey]) {
+          dataByMonth[monthKey] = {
+            month: monthKey,
+            investments: 0,
+            redemptions: 0,
+            result: 0
+          }
+        }
+        
+        if (transaction.subcategoria === 'Investimento' && transaction.valor < 0) {
+          dataByMonth[monthKey].investments += Math.abs(transaction.valor)
+        } else if (transaction.subcategoria === 'Resgate investimentos' && transaction.valor > 0) {
+          dataByMonth[monthKey].redemptions += transaction.valor
+        }
+      })
+
+    // Calculate result after all transactions are processed
+    Object.values(dataByMonth).forEach(data => {
+      data.result = data.investments - data.redemptions
+    })
+
+    return Object.entries(dataByMonth)
+      .map(([month, data]) => ({
+        ...data,
+        month
+      }))
+      .sort((a, b) => monthNames.indexOf(a.month) - monthNames.indexOf(b.month))
+  }, [transactions, investmentYearFilter])
+
+  // Get unique years for the filter
+  const uniqueYears = useMemo(() => {
+    const years = new Set(transactions.map(t => t.anoReferencia))
+    return Array.from(years).sort((a, b) => b - a) // Sort descending
+  }, [transactions])
+
   // Get unique categories and subcategories
   const uniqueCategories = Array.from(new Set(transactions.map(t => t.categoria)))
   const uniqueSubcategories = selectedCategory !== 'all' 
@@ -232,7 +279,7 @@ export function AnalysesTab({ transactions }: AnalysesTabProps) {
               <SelectTrigger>
                 <SelectValue placeholder="Selecione o período" />
               </SelectTrigger>
-              <SelectContent   className="bg-white">
+              <SelectContent  className="bg-white">
                 <SelectItem value="6months">Últimos 6 meses</SelectItem>
                 <SelectItem value="12months">Últimos 12 meses</SelectItem>
                 <SelectItem value="currentYear">Ano corrente</SelectItem>
@@ -308,6 +355,64 @@ export function AnalysesTab({ transactions }: AnalysesTabProps) {
                 labelFormatter={(label) => `Categoria: ${label}`}
               />
               <Bar dataKey="total" fill="#82ca9d" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Investment and Redemption Chart */}
+      <div className="space-y-4">
+        <h3 className="text-xl font-semibold">Investimentos e Resgates Mensais</h3>
+        <div className="flex space-x-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Ano</label>
+            <Select value={investmentYearFilter.toString()} onValueChange={(value) => setInvestmentYearFilter(Number(value))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione o ano" />
+              </SelectTrigger>
+              <SelectContent className="bg-white">
+                {uniqueYears.map(year => (
+                  <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="h-[400px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={investmentAndRedemptionData}>
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip 
+                formatter={(value, name) => {
+                  const formattedValue = new Intl.NumberFormat('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL'
+                  }).format(Number(value))
+                  
+                  let label
+                  switch (name) {
+                    case 'investments':
+                      label = 'Investimentos'
+                      break
+                    case 'redemptions':
+                      label = 'Resgates'
+                      break
+                    case 'result':
+                      label = 'Resultado'
+                      break
+                    default:
+                      label = name
+                  }
+                  
+                  return [formattedValue, label]
+                }}
+                labelFormatter={(label) => `Mês: ${label}`}
+              />
+              <Legend />
+              <Bar dataKey="investments" name="Investimentos" fill="#2563eb" />
+              <Bar dataKey="redemptions" name="Resgates" fill="#dc2626" />
+              <Bar dataKey="result" name="Resultado" fill="#256377" />
             </BarChart>
           </ResponsiveContainer>
         </div>
