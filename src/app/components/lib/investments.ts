@@ -1,5 +1,4 @@
 import { Investment, Transaction } from "./interfaces";
-import { Timestamp } from "firebase/firestore";
 
 // Constantes para categorias de transação
 export const TRANSACTION_CATEGORIES = {
