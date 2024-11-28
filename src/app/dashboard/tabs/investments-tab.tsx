@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
@@ -9,10 +9,14 @@ import { formatCurrency, formatDate } from "../../components/lib/utils"
 import { collection, query, where, getDocs, orderBy } from "firebase/firestore"
 import { db } from "../../services/firebase"
 import { useAuth } from "../../components/auth/authContext"
+import {
+  TRANSACTION_CATEGORIES,
+  getFirstDateInvestments,
+  calculateTransactionsTotal
+} from "../../components/lib/investments"
 
 export function InvestmentsTab() {
   const [investments, setInvestments] = useState<Investment[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -57,6 +61,7 @@ export function InvestmentsTab() {
         setInvestments(fetchedInvestments);
 
         // Fetch investment transactions
+        const currentYear = new Date().getFullYear();
         const transactionsRef = collection(db, "transactions");
         
         // Buscar transações de investimentos
@@ -64,8 +69,8 @@ export function InvestmentsTab() {
           transactionsRef,
           where("accountId", "==", accountId),
           where("anoReferencia", "==", currentYear),
-          where("categoria", "==", "Reserva"),
-          where("subcategoria", "==", "Investimento")
+          where("categoria", "==", TRANSACTION_CATEGORIES.INVESTMENT.category),
+          where("subcategoria", "==", TRANSACTION_CATEGORIES.INVESTMENT.subcategory)
         );
 
         const investmentTransactionsSnapshot = await getDocs(investmentTransactionsQuery);
@@ -79,8 +84,8 @@ export function InvestmentsTab() {
           transactionsRef,
           where("accountId", "==", accountId),
           where("anoReferencia", "==", currentYear),
-          where("categoria", "==", "Receitas"),
-          where("subcategoria", "==", "Resgate investimentos")
+          where("categoria", "==", TRANSACTION_CATEGORIES.REDEMPTION.category),
+          where("subcategoria", "==", TRANSACTION_CATEGORIES.REDEMPTION.subcategory)
         );
 
         const redemptionsSnapshot = await getDocs(redemptionsQuery);
@@ -90,15 +95,8 @@ export function InvestmentsTab() {
         })) as Transaction[];
 
         // Calculate totals
-        const totalInvested = investmentTransactions.reduce((total, transaction) => 
-          total + Math.abs(transaction.valor), 0
-        );
-        const totalRedeemed = redemptionTransactions.reduce((total, transaction) => 
-          total + Math.abs(transaction.valor), 0
-        );
-
-        setYearInvestmentTotal(totalInvested);
-        setYearRedemptionTotal(totalRedeemed);
+        setYearInvestmentTotal(calculateTransactionsTotal(investmentTransactions));
+        setYearRedemptionTotal(calculateTransactionsTotal(redemptionTransactions));
 
         // Set initial selected date and calculate first year total
         if (fetchedInvestments.length > 0) {
@@ -106,15 +104,11 @@ export function InvestmentsTab() {
             setSelectedDate(formatDate(fetchedInvestments[0].dataReferencia.toDate()));
           }
 
-          const firstDateInvestments = fetchedInvestments
-            .filter(inv => inv.dataReferencia.toDate().getFullYear() === currentYear)
-            .sort((a, b) => a.dataReferencia.toDate().getTime() - b.dataReferencia.toDate().getTime());
+          const firstDateInvestments = getFirstDateInvestments(fetchedInvestments);
 
           if (firstDateInvestments.length > 0) {
-            const firstDate = formatDate(firstDateInvestments[0].dataReferencia.toDate());
-            const firstDateTotal = firstDateInvestments
-              .filter(inv => formatDate(inv.dataReferencia.toDate()) === firstDate)
-              .reduce((total, inv) => total + (inv["Fin. Mercado"] || 0), 0);
+            const firstDateTotal = firstDateInvestments.reduce((total, inv) => 
+              total + (inv["Fin. Mercado"] || 0), 0);
             
             setFirstYearTotal(firstDateTotal);
           }
@@ -130,8 +124,12 @@ export function InvestmentsTab() {
     };
 
     fetchData();
-  }, [accountId]);
+  }, [accountId, selectedDate]);
 
+  if (loading) return <div>Carregando...</div>;
+  if (error) return <div className="text-red-500">{error}</div>;
+
+ 
   // Rest of the code remains the same as in the previous implementation...
   // (Keeping the entire original implementation, just modified the sorting logic)
   const parseExpirationDate = (ativo: string): Date | null => {
@@ -242,7 +240,7 @@ export function InvestmentsTab() {
   // Total calculations
   const totalFinCusto = filteredInvestments.reduce((total, inv) => 
     total + (inv["Fin. Custo"] || 0), 0);
-  const totalFinMercadoTodos = filteredInvestments.reduce((total, inv) => 
+  const totalFinMercadoGeral = filteredInvestments.reduce((total, inv) => 
     total + (inv["Fin. Mercado"] || 0), 0);
 
   const totalLPRealizar = filteredInvestments.reduce((total, inv) => 
@@ -251,14 +249,6 @@ export function InvestmentsTab() {
   const percentLPTotal = totalFinCusto !== 0 
     ? (totalLPRealizar / totalFinCusto) * 100 
     : 0;
-
-  if (loading) {
-    return <div>Carregando...</div>;
-  }
-
-  if (error) {
-    return <div className="text-red-500">{error}</div>;
-  }
 
   // Market color mapping
   const marketColorMap: Record<string, string> = {
@@ -367,15 +357,13 @@ export function InvestmentsTab() {
           </CardHeader>
           <CardContent className="p-4 pt-0">
             <div className="text-lg sm:text-2xl font-bold">
-              {formatCurrency(totalFinMercadoTodos)}
+              {formatCurrency(totalFinMercadoGeral)}
               {firstYearTotal !== null && (
                 <div className="text-sm mt-2">
                   <span className="font-normal">Variação desde {firstDateOfYear}: </span>
-                  <span className={totalFinMercadoTodos - firstYearTotal >= 0 ? 'text-green-600' : 'text-red-600'}>
-                    {formatCurrency(totalFinMercadoTodos - firstYearTotal)}
-                    <span className="ml-1">
-                      ({((totalFinMercadoTodos - firstYearTotal) / firstYearTotal * 100).toFixed(2)}%)
-                    </span>
+                  <span className={totalFinMercadoGeral - firstYearTotal >= 0 ? 'text-green-600' : 'text-red-600'}>
+                    {formatCurrency(totalFinMercadoGeral - firstYearTotal)}
+                    <span className="text-sm ml-2">({((totalFinMercadoGeral - firstYearTotal) / firstYearTotal * 100).toFixed(2)}%)</span>
                   </span>
                 </div>
               )}
@@ -411,15 +399,15 @@ export function InvestmentsTab() {
                 <div>
                   <div className="text-sm text-gray-600">Valor Atual</div>
                   <div className="text-lg sm:text-2xl font-bold">
-                    {formatCurrency(totalFinMercadoTodos)}
+                    {formatCurrency(totalFinMercadoGeral)}
                   </div>
                 </div>
                 <div>
                   <div className="text-sm text-gray-600">Variação</div>
-                  <div className={`text-lg sm:text-2xl font-bold ${totalFinMercadoTodos - firstYearTotal >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {formatCurrency(totalFinMercadoTodos - firstYearTotal)}
+                  <div className={`text-lg sm:text-2xl font-bold ${totalFinMercadoGeral - firstYearTotal >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {formatCurrency(totalFinMercadoGeral - firstYearTotal)}
                     <span className="text-sm ml-2">
-                      ({((totalFinMercadoTodos - firstYearTotal) / firstYearTotal * 100).toFixed(2)}%)
+                      ({((totalFinMercadoGeral - firstYearTotal) / firstYearTotal * 100).toFixed(2)}%)
                     </span>
                   </div>
                 </div>
