@@ -74,13 +74,17 @@ export function AnalysesTab({ transactions }: AnalysesTabProps) {
         (origin === 'conta_bancaria' && (!transaction.origem || transaction.origem === 'conta_bancaria')) ||
         (origin === 'cartao_credito' && transaction.origem === 'cartao_credito')
 
-      return timeMatch && categoryMatch && subcategoryMatch && originMatch && transaction.valor < 0
+      // Exclude "Não contábil" transactions
+      const excludeNaoContabil = transaction.categoria !== 'Não contábil' && transaction.categoria !== 'Reserva'
+
+      return timeMatch && categoryMatch && subcategoryMatch && originMatch && transaction.valor < 0 && excludeNaoContabil
     })
   }
 
   // Line Chart Filtering
   const lineFilteredTransactions = useMemo(() => 
-    filterTransactions(lineTimeFilter, selectedCategory, selectedSubcategory), 
+    filterTransactions(lineTimeFilter, selectedCategory, selectedSubcategory)
+      .filter(transaction => transaction.categoria !== 'Não contábil'), 
     [transactions, lineTimeFilter, selectedCategory, selectedSubcategory]
   )
 
@@ -166,13 +170,15 @@ export function AnalysesTab({ transactions }: AnalysesTabProps) {
     const expensesByMonth: { [key: string]: number } = {}
 
     barFilteredTransactions.forEach(transaction => {
-      const monthKey = `${monthNames[transaction.mesReferencia - 1]}/${transaction.anoReferencia}`
-      
-      if (!expensesByMonth[monthKey]) {
-        expensesByMonth[monthKey] = 0
+      if (transaction.categoria !== 'Não contábil') {
+        const monthKey = `${monthNames[transaction.mesReferencia - 1]}/${transaction.anoReferencia}`
+        
+        if (!expensesByMonth[monthKey]) {
+          expensesByMonth[monthKey] = 0
+        }
+        
+        expensesByMonth[monthKey] += Math.abs(transaction.valor)
       }
-      
-      expensesByMonth[monthKey] += Math.abs(transaction.valor)
     })
 
     return Object.entries(expensesByMonth)
@@ -191,6 +197,7 @@ export function AnalysesTab({ transactions }: AnalysesTabProps) {
     const expensesByCategory: { [key: string]: number } = {}
 
     const filteredTransactions = filterTransactions(categoryBarTimeFilter)
+      .filter(transaction => transaction.categoria !== 'Não contábil')
 
     filteredTransactions.forEach(transaction => {
       const categoryKey = transaction.categoria
@@ -215,7 +222,10 @@ export function AnalysesTab({ transactions }: AnalysesTabProps) {
     const dataByMonth: { [key: string]: { month: string, investments: number, redemptions: number, result: number } } = {}
 
     transactions
-      .filter(transaction => transaction.anoReferencia === investmentYearFilter)
+      .filter(transaction => 
+        transaction.anoReferencia === investmentYearFilter && 
+        transaction.categoria !== 'Não contábil'
+      )
       .forEach(transaction => {
         const monthKey = `${monthNames[transaction.mesReferencia - 1]}`
         
